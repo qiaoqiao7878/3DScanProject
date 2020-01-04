@@ -31,8 +31,8 @@ public class PresentationScript : MonoBehaviour
 	
 	void Start() 
 	{
-		// hide mouse cursor
-		Screen.showCursor = false;
+        // hide mouse cursor
+        UnityEngine.Cursor.visible = false;
 		
 		// calculate max slides and textures
 		maxSides = horizontalSides.Count;
@@ -47,9 +47,9 @@ public class PresentationScript : MonoBehaviour
 		tex = 0;
 		side = 0;
 		
-		if(horizontalSides[side] && horizontalSides[side].renderer)
+		if(horizontalSides[side] && horizontalSides[side].GetComponent<Renderer>())
 		{
-			horizontalSides[side].renderer.material.mainTexture = slideTextures[tex];
+			horizontalSides[side].GetComponent<Renderer>().material.mainTexture = slideTextures[tex];
 		}
 		
 		// get the gestures listener
@@ -123,9 +123,9 @@ public class PresentationScript : MonoBehaviour
 				side -= 1;
 		}
 
-		if(horizontalSides[side] && horizontalSides[side].renderer)
+		if(horizontalSides[side] && horizontalSides[side].GetComponent<Renderer>())
 		{
-			horizontalSides[side].renderer.material.mainTexture = slideTextures[tex];
+			horizontalSides[side].GetComponent<Renderer>().material.mainTexture = slideTextures[tex];
 		}
 		
 		// rotate the presentation
@@ -156,9 +156,9 @@ public class PresentationScript : MonoBehaviour
 			side = (side + 1) % maxSides;
 		}
 		
-		if(horizontalSides[side] && horizontalSides[side].renderer)
+		if(horizontalSides[side] && horizontalSides[side].GetComponent<Renderer>())
 		{
-			horizontalSides[side].renderer.material.mainTexture = slideTextures[tex];
+			horizontalSides[side].GetComponent<Renderer>().material.mainTexture = slideTextures[tex];
 		}
 		
 		// rotate the presentation

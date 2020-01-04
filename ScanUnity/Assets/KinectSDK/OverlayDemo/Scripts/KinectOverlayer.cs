@@ -68,7 +68,7 @@ public class KinectOverlayer : MonoBehaviour
 
 						if(debugText)
 						{
-							debugText.guiText.text = "Tracked user ID: " + userId;  // new Vector2(scaleX, scaleY).ToString();
+							debugText.GetComponent<GUIText>().text = "Tracked user ID: " + userId;  // new Vector2(scaleX, scaleY).ToString();
 						}
 						
 						if(OverlayObject)
