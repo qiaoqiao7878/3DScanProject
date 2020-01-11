@@ -3,15 +3,20 @@ using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.SceneManagement;
 
-public class UIGame : MonoBehaviour
+public class DisplayMenu : MonoBehaviour
 {
-    public void endGame()
+    public void back()
     {
         SceneManager.LoadScene(0);
     }
 
-    public void configKinect()
+    public void recordStart()
     {
         
+    }
+
+    public void recordStop()
+    {
+
     }
 }

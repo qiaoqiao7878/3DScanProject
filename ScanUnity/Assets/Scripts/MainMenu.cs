@@ -5,9 +5,19 @@ using UnityEngine.SceneManagement;
 
 public class MainMenu : MonoBehaviour
 {
-    public void startGame()
+    public void configAvatar()
     {
         SceneManager.LoadScene(1);
+    }
+
+    public void startGame()
+    {
+        SceneManager.LoadScene(2);
+    }
+
+    public void display()
+    {
+        SceneManager.LoadScene(3);
     }
 
     public void closeGame()

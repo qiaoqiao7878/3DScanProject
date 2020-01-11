@@ -9,6 +9,12 @@ EditorBuildSettings:
     path: Assets/Scenes/MainMenu.unity
     guid: 1dc7a3f7c6116ff43ac5ead98afcf2f8
   - enabled: 1
+    path: Assets/Scenes/ConfigAvatar.unity
+    guid: 5c1312de481477f4f952f129171bcfd5
+  - enabled: 1
+    path: Assets/Scenes/Dance.unity
+    guid: 8ee6023cadc8c8a48963085c07eb4d2f
+  - enabled: 1
     path: Assets/Scenes/Display.unity
     guid: 25c3c0425243c4b41afe976cf9b84919
   m_configObjects: {}
