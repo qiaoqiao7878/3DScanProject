@@ -5,8 +5,10 @@ using UnityEngine.SceneManagement;
 
 public class DanceMenu : MonoBehaviour
 {
+    
     public void start()
     {
+        UnityEditor.AssetDatabase.Refresh();
 
     }
 

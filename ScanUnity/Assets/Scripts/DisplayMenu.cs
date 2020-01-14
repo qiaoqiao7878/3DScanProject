@@ -5,8 +5,10 @@ using UnityEngine.SceneManagement;
 
 public class DisplayMenu : MonoBehaviour
 {
+    
     public void back()
     {
+        UnityEditor.AssetDatabase.Refresh();
         SceneManager.LoadScene(0);
     }
 

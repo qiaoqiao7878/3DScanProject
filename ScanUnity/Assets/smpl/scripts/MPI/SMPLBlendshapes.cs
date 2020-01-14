@@ -63,8 +63,9 @@ public class SMPLBlendshapes : MonoBehaviour {
 	private SMPLJointCalculator _jointCalculator;
 	private SMPLModifyBones     _modifyBones;
 	private SMPLOptimalPoseBlends _optimalPoseBlends;
+    private Material[] material;
 
-	private string _gender;
+    private string _gender;
 	private List<int> _poseBlendsToSet;
 	private int _numPoseBlendsToSet = 40;
 	private float _shapeBlendsScale = 5.0f;
@@ -75,6 +76,7 @@ public class SMPLBlendshapes : MonoBehaviour {
 	void Awake()
 	{
 		targetMeshRenderer = GetComponent<SkinnedMeshRenderer> ();
+
 	}
 
 
@@ -131,9 +133,12 @@ public class SMPLBlendshapes : MonoBehaviour {
 			_poseBlendsToSet = null;
 
 		// 4. If JSON for betas is provided, read new betas from JSON file
-		if (shapeParmsJSON != null)	 readShapeParms();		
+		if (shapeParmsJSON != null)	 readShapeParms();
 
-	}
+        set_materials();
+
+
+    }
 
 	/* 	Actions to perform at each time step
 	 */ 
@@ -147,10 +152,25 @@ public class SMPLBlendshapes : MonoBehaviour {
 			Application.Quit();
 	}
 
+    void set_materials()
+    {
+        targetMeshRenderer.sharedMaterial = material[0];
+        _gender = _jointCalculator.getGender();
+        if (_gender != "male")
+        {
+            targetMeshRenderer.sharedMaterial = material[0];
+        }
+        else {
+            targetMeshRenderer.sharedMaterial = material[1];
+        }
+       
+    }
 
-	/*	Set the corrective pose blendshape values from current pose-parameters (joint angles)
-	 */ 
-	void setPoseBlendValues()
+
+
+    /*	Set the corrective pose blendshape values from current pose-parameters (joint angles)
+	 */
+    void setPoseBlendValues()
 	{
 		Transform[] _bones = _modifyBones.getBones();
 		Dictionary<string, int> _boneNameToJointIndex = _modifyBones.getB2J_indices();

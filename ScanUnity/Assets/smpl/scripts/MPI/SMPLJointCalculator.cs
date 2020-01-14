@@ -24,6 +24,7 @@ on improving the model and in making it available on more platforms.
 	The class uses the joint-regressor from one for the 'SMPL_jReg_*.json' file to regress to the 
 	updated joint locations for the new mesh shape.
 */
+using System;
 using UnityEngine;
 using System.Collections;
 using LightweightMatrixCSharp;
@@ -158,5 +159,78 @@ public class SMPLJointCalculator {
 	{
 		return _joints;
 	}
-	
+
+    public static double Length(ref Vector3[] jointsPos, NuiSkeletonPositionIndex p1, NuiSkeletonPositionIndex p2)
+    {
+        Vector3 pVec1 = jointsPos[(int)p1];
+        Vector3 pVec2 = jointsPos[(int)p2];
+        double length = Math.Sqrt(Math.Pow(pVec1.x - pVec2.x, 2) + Math.Pow(pVec1.y - pVec2.y, 2) + Math.Pow(pVec1.z - pVec2.z, 2));
+        return length;
+    }
+
+    public static double Lengthwithvector(ref Vector3[] jointsPos, NuiSkeletonPositionIndex p1, Vector3 p2)
+    {
+        Vector3 pVec1 = jointsPos[(int)p1];
+        double length = Math.Sqrt(Math.Pow(pVec1.x - p2.x, 2) + Math.Pow(pVec1.y - p2.y, 2) + Math.Pow(pVec1.z - p2.z, 2));
+        return length;
+    }
+
+    public static Vector3 Average(ref Vector3[] jointsPos, NuiSkeletonPositionIndex p1, NuiSkeletonPositionIndex p2)
+    {
+        Vector3 pVec1 = jointsPos[(int)p1];
+        Vector3 pVec2 = jointsPos[(int)p2];
+        Vector3 avg_joint;
+        avg_joint = (pVec1 + pVec2) / 2;
+        return avg_joint;
+    }
+
+    public static double calBodyheight(ref Vector3[] jointsPos)
+    {
+        double torso_height = Length(ref jointsPos, NuiSkeletonPositionIndex.Head, NuiSkeletonPositionIndex.ShoulderCenter);
+        torso_height += Length(ref jointsPos, NuiSkeletonPositionIndex.ShoulderCenter, NuiSkeletonPositionIndex.Spine);
+        torso_height += Length(ref jointsPos, NuiSkeletonPositionIndex.Spine, NuiSkeletonPositionIndex.HipCenter);
+        torso_height += Lengthwithvector(ref jointsPos, NuiSkeletonPositionIndex.HipCenter, Average(ref jointsPos, NuiSkeletonPositionIndex.HipRight, NuiSkeletonPositionIndex.HipLeft));
+
+        double left_leg_height = Length(ref jointsPos, NuiSkeletonPositionIndex.HipLeft, NuiSkeletonPositionIndex.KneeLeft);
+        left_leg_height += Length(ref jointsPos, NuiSkeletonPositionIndex.KneeLeft, NuiSkeletonPositionIndex.AnkleLeft);
+        left_leg_height += Length(ref jointsPos, NuiSkeletonPositionIndex.AnkleLeft, NuiSkeletonPositionIndex.FootLeft);
+
+        double right_leg_height = Length(ref jointsPos, NuiSkeletonPositionIndex.HipRight, NuiSkeletonPositionIndex.KneeRight);
+        right_leg_height += Length(ref jointsPos, NuiSkeletonPositionIndex.KneeRight, NuiSkeletonPositionIndex.AnkleRight);
+        right_leg_height += Length(ref jointsPos, NuiSkeletonPositionIndex.AnkleRight, NuiSkeletonPositionIndex.FootRight);
+
+        double tot_height = torso_height + (left_leg_height + right_leg_height) / 2.0;
+        return tot_height;
+
+    }
+
+    public double getBodyheight() {
+        return calBodyheight(ref _joints);
+    }
+
+
+    public enum NuiSkeletonPositionIndex : int
+    {
+        HipCenter = 0,
+        Spine = 1,
+        ShoulderCenter = 2,
+        Head = 3,
+        ShoulderLeft = 4,
+        ElbowLeft = 5,
+        WristLeft = 6,
+        HandLeft = 7,
+        ShoulderRight = 8,
+        ElbowRight = 9,
+        WristRight = 10,
+        HandRight = 11,
+        HipLeft = 12,
+        KneeLeft = 13,
+        AnkleLeft = 14,
+        FootLeft = 15,
+        HipRight = 16,
+        KneeRight = 17,
+        AnkleRight = 18,
+        FootRight = 19,
+        Count = 20
+    }
 }
