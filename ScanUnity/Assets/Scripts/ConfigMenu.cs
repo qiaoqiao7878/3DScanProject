@@ -9,6 +9,7 @@ public class ConfigMenu : MonoBehaviour
 
 {
     private double bodyheight = 1.7;
+    private double bodyweight = 0.0;
     private string _gender = "male";
     private string json;
     public SMPLBlendshapes SMPLBlendshapes;
@@ -27,7 +28,7 @@ public class ConfigMenu : MonoBehaviour
     public void scanning()
     {
         _joints = new Vector3[_numJoints];
-        updateBodyheight();
+        updateBody();
 
         //just use the head joint
         //bodyheight = _joints[3].y;
@@ -56,6 +57,8 @@ public class ConfigMenu : MonoBehaviour
         //just first directly set the bodyheight as betas[0]
         bodyshape_female.betas[0] = bodyheight;
         bodyshape_male.betas[0] = bodyheight;
+        bodyshape_female.betas[1] = bodyweight;
+        bodyshape_male.betas[1] = bodyweight;
         
 
         if (_gender == "male")
@@ -81,7 +84,7 @@ public class ConfigMenu : MonoBehaviour
         public double[] betas = new double[10] { 0.55717977, -1.81291238, -0.54321285, 0.23705893, -0.50107065, 1.24639222, 0.43375487, 0.15281353, -0.23500944, 0.10896058 };
     }
     
-
+    
     public void gender()
     {
         if (GM.getGender() == "female")
@@ -144,7 +147,7 @@ public class ConfigMenu : MonoBehaviour
         }
     }
 
-    void updateBodyheight() {
+    void updateBody() {
         UserId = manager.GetPlayer1ID();
         //public Vector3 GetJointPosition(uint UserId, int joint)     
         for (int i = 0; i < _numJoints; i++) { 
@@ -153,8 +156,10 @@ public class ConfigMenu : MonoBehaviour
              }
         }
         bodyheight = calBodyheight(ref _joints);
+        bodyweight = calBodyweight(ref _joints);
     }
 
+    
     public static double Length(ref Vector3[] jointsPos, NuiSkeletonPositionIndex p1, NuiSkeletonPositionIndex p2)
     {
         Vector3 pVec1 = jointsPos[(int)p1];
@@ -200,9 +205,20 @@ public class ConfigMenu : MonoBehaviour
         right_leg_height += Length(ref jointsPos, NuiSkeletonPositionIndex.AnkleRight, NuiSkeletonPositionIndex.FootRight);
 
         double tot_height = torso_height + (left_leg_height + right_leg_height) / 2.0;
+        
         return tot_height;
 
     }
+
+    public static double calBodyweight(ref Vector3[] jointsPos)
+    {
+        double weightValue = 0;
+        weightValue = Length(ref jointsPos, NuiSkeletonPositionIndex.ElbowLeft, NuiSkeletonPositionIndex.ElbowRight);
+        
+        return weightValue;
+    }
+
+    
     
     public enum NuiSkeletonPositionIndex : int
     {
