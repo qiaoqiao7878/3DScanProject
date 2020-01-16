@@ -184,27 +184,40 @@ public class ConfigMenu : MonoBehaviour
         return avg_joint;
     }
    
-
+    .
     
-    public static double calBodyheight(ref Vector3[] jointsPos)
+    public double calBodyheight(ref Vector3[] jointsPos)
     {
         double torso_height = 0;
-        torso_height = Length(ref jointsPos, NuiSkeletonPositionIndex.Head, NuiSkeletonPositionIndex.ShoulderCenter);
-        torso_height += Length(ref jointsPos, NuiSkeletonPositionIndex.ShoulderCenter, NuiSkeletonPositionIndex.Spine);
-        torso_height += Length(ref jointsPos, NuiSkeletonPositionIndex.Spine, NuiSkeletonPositionIndex.HipCenter);
-        torso_height += Lengthwithvector(ref jointsPos, NuiSkeletonPositionIndex.HipCenter, Average(ref jointsPos, NuiSkeletonPositionIndex.HipRight, NuiSkeletonPositionIndex.HipLeft));
+        double tot_height = 0;
 
-        double left_leg_height = 0;
-        left_leg_height = Length(ref jointsPos, NuiSkeletonPositionIndex.HipLeft, NuiSkeletonPositionIndex.KneeLeft);
-        left_leg_height += Length(ref jointsPos, NuiSkeletonPositionIndex.KneeLeft, NuiSkeletonPositionIndex.AnkleLeft);
-        left_leg_height += Length(ref jointsPos, NuiSkeletonPositionIndex.AnkleLeft, NuiSkeletonPositionIndex.FootLeft);
+        if(manager.IsJointTracked(UserId, (int)NuiSkeletonPositionIndex.FootLeft) && manager.IsJointTracked(UserId,
+            (int)NuiSkeletonPositionIndex.FootRight) && manager.IsJointTracked(UserId, (int)NuiSkeletonPositionIndex.Head))
+        {
+            torso_height = Length(ref jointsPos, NuiSkeletonPositionIndex.Head, NuiSkeletonPositionIndex.ShoulderCenter);
+            torso_height += Length(ref jointsPos, NuiSkeletonPositionIndex.ShoulderCenter, NuiSkeletonPositionIndex.Spine);
+            torso_height += Length(ref jointsPos, NuiSkeletonPositionIndex.Spine, NuiSkeletonPositionIndex.HipCenter);
+            torso_height += Lengthwithvector(ref jointsPos, NuiSkeletonPositionIndex.HipCenter, Average(ref jointsPos, NuiSkeletonPositionIndex.HipRight, NuiSkeletonPositionIndex.HipLeft));
 
-        double right_leg_height = 0;
-        right_leg_height = Length(ref jointsPos, NuiSkeletonPositionIndex.HipRight, NuiSkeletonPositionIndex.KneeRight);
-        right_leg_height += Length(ref jointsPos, NuiSkeletonPositionIndex.KneeRight, NuiSkeletonPositionIndex.AnkleRight);
-        right_leg_height += Length(ref jointsPos, NuiSkeletonPositionIndex.AnkleRight, NuiSkeletonPositionIndex.FootRight);
+            double left_leg_height = 0;
+            left_leg_height = Length(ref jointsPos, NuiSkeletonPositionIndex.HipLeft, NuiSkeletonPositionIndex.KneeLeft);
+            left_leg_height += Length(ref jointsPos, NuiSkeletonPositionIndex.KneeLeft, NuiSkeletonPositionIndex.AnkleLeft);
+            left_leg_height += Length(ref jointsPos, NuiSkeletonPositionIndex.AnkleLeft, NuiSkeletonPositionIndex.FootLeft);
 
-        double tot_height = torso_height + (left_leg_height + right_leg_height) / 2.0;
+            double right_leg_height = 0;
+            right_leg_height = Length(ref jointsPos, NuiSkeletonPositionIndex.HipRight, NuiSkeletonPositionIndex.KneeRight);
+            right_leg_height += Length(ref jointsPos, NuiSkeletonPositionIndex.KneeRight, NuiSkeletonPositionIndex.AnkleRight);
+            right_leg_height += Length(ref jointsPos, NuiSkeletonPositionIndex.AnkleRight, NuiSkeletonPositionIndex.FootRight);
+
+            tot_height = torso_height + (left_leg_height + right_leg_height) / 2.0;
+        }
+        else
+        {
+            Debug.Log("I just cannot find you!!! Please find more suitable place!!! :(");
+            return 0.0;
+        }
+
+        
         
         return tot_height;
 
