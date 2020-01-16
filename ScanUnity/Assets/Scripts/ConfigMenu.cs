@@ -9,7 +9,7 @@ public class ConfigMenu : MonoBehaviour
 
 {
     private double bodyheight = 1.7;
-    private double bodyweight = 0.0;
+    private double bodyweight = 0.5;
     private string _gender = "male";
     private string json;
     public SMPLBlendshapes SMPLBlendshapes;
@@ -35,7 +35,7 @@ public class ConfigMenu : MonoBehaviour
 
 
         // output jointposition to txt file 
-        /*
+        
         string pathout = "Assets/smpl/Samples/Betas/joint.txt";
 
         StreamWriter sw = new StreamWriter(pathout, true);
@@ -46,9 +46,9 @@ public class ConfigMenu : MonoBehaviour
         }
         sw.Close();
         sw.Dispose();
-        */
+        
 
-        Debug.Log(bodyheight.ToString());
+        //Debug.Log(bodyheight.ToString());
         Bodyshape_female bodyshape_female = new Bodyshape_female();
         //bodyshape_female.betas[0] = (bodyheight - 1.7) * 0.7;
         Bodyshape_male bodyshape_male = new Bodyshape_male();
@@ -57,9 +57,9 @@ public class ConfigMenu : MonoBehaviour
         //just first directly set the bodyheight as betas[0]
         bodyshape_female.betas[0] = bodyheight;
         bodyshape_male.betas[0] = bodyheight;
-        bodyshape_female.betas[1] = bodyweight;
-        bodyshape_male.betas[1] = bodyweight;
-        
+        bodyshape_female.betas[1] = -(bodyweight - 0.5) * 10;
+        bodyshape_male.betas[1] = -(bodyweight - 0.5) * 10;
+        Debug.Log(bodyweight.ToString());
 
         if (_gender == "male")
         {
@@ -84,7 +84,7 @@ public class ConfigMenu : MonoBehaviour
         public double[] betas = new double[10] { 0.55717977, -1.81291238, -0.54321285, 0.23705893, -0.50107065, 1.24639222, 0.43375487, 0.15281353, -0.23500944, 0.10896058 };
     }
     
-    
+
     public void gender()
     {
         if (GM.getGender() == "female")
@@ -119,7 +119,7 @@ public class ConfigMenu : MonoBehaviour
 
     public void back()
     {
-        SceneManager.LoadScene(0);
+        SceneManager.LoadScene(1);
     }
 
     void Awake()
@@ -157,9 +157,9 @@ public class ConfigMenu : MonoBehaviour
         }
         bodyheight = calBodyheight(ref _joints);
         bodyweight = calBodyweight(ref _joints);
+
     }
 
-    
     public static double Length(ref Vector3[] jointsPos, NuiSkeletonPositionIndex p1, NuiSkeletonPositionIndex p2)
     {
         Vector3 pVec1 = jointsPos[(int)p1];
@@ -183,15 +183,15 @@ public class ConfigMenu : MonoBehaviour
         avg_joint = (pVec1 + pVec2) / 2;
         return avg_joint;
     }
-   
-    .
-    
+
+
+
     public double calBodyheight(ref Vector3[] jointsPos)
     {
         double torso_height = 0;
         double tot_height = 0;
 
-        if(manager.IsJointTracked(UserId, (int)NuiSkeletonPositionIndex.FootLeft) && manager.IsJointTracked(UserId,
+        if (manager.IsJointTracked(UserId, (int)NuiSkeletonPositionIndex.FootLeft) && manager.IsJointTracked(UserId,
             (int)NuiSkeletonPositionIndex.FootRight) && manager.IsJointTracked(UserId, (int)NuiSkeletonPositionIndex.Head))
         {
             torso_height = Length(ref jointsPos, NuiSkeletonPositionIndex.Head, NuiSkeletonPositionIndex.ShoulderCenter);
@@ -216,45 +216,42 @@ public class ConfigMenu : MonoBehaviour
             Debug.Log("I just cannot find you!!! Please find more suitable place!!! :(");
             return 0.0;
         }
-
-        
-        
         return tot_height;
 
     }
-
     public static double calBodyweight(ref Vector3[] jointsPos)
     {
         double weightValue = 0;
         weightValue = Length(ref jointsPos, NuiSkeletonPositionIndex.ElbowLeft, NuiSkeletonPositionIndex.ElbowRight);
-        
         return weightValue;
     }
 
-    
-    
+
+
+
     public enum NuiSkeletonPositionIndex : int
     {
+        
         HipCenter = 0,
         Spine = 1,
         ShoulderCenter = 2,
         Head = 3,
-        ShoulderLeft = 5,
-        ElbowLeft = 6,
-        WristLeft = 7,
-        HandLeft = 8,
-        ShoulderRight = 10,
-        ElbowRight = 11,
-        WristRight = 12,
-        HandRight = 13,
-        HipLeft = 14,
-        KneeLeft = 15,
-        AnkleLeft = 16,
-        FootLeft = 17,
-        HipRight = 18,
-        KneeRight = 19,
-        AnkleRight = 20,
-        FootRight = 21
+        ShoulderLeft = 4,
+        ElbowLeft = 5,
+        WristLeft = 6,
+        HandLeft = 7,
+        ShoulderRight = 8,
+        ElbowRight = 9,
+        WristRight = 10,
+        HandRight = 11,
+        HipLeft = 12,
+        KneeLeft = 13,
+        AnkleLeft = 14,
+        FootLeft = 15,
+        HipRight = 16,
+        KneeRight = 17,
+        AnkleRight = 18,
+        FootRight = 19,
     }
 
 }
