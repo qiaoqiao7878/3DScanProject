@@ -73,7 +73,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   jointRegressorJSON: {fileID: 4900000, guid: 5c3f996cf9929ab48be13c3067aae227, type: 3}
-  shapeParmsJSON: {fileID: 4900000, guid: e47089afed15a8647b71d540b7f02499, type: 3}
+  shapeParmsJSON: {fileID: 4900000, guid: 4cfa1a9923502b24a92e0f3d680f010a, type: 3}
   optimizePoseBlends: 0
 --- !u!1001 &5055122484414979034
 PrefabInstance:

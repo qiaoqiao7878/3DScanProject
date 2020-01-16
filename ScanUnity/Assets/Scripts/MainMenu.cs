@@ -7,17 +7,17 @@ public class MainMenu : MonoBehaviour
 {
     public void configAvatar()
     {
-        SceneManager.LoadScene(1);
+        SceneManager.LoadScene(2);
     }
 
     public void startGame()
     {
-        SceneManager.LoadScene(2);
+        SceneManager.LoadScene(3);
     }
 
     public void display()
     {
-        SceneManager.LoadScene(3);
+        SceneManager.LoadScene(4);
     }
 
     public void closeGame()

@@ -83,7 +83,9 @@ public class AvatarController : MonoBehaviour
 
 		// Get initial bone rotations
 		GetInitialRotations();
-	}
+
+        //DontDestroyOnLoad(gameObject);
+    }
 	
 	// Update the avatar each frame.
     public void UpdateAvatar(uint UserID)
@@ -485,7 +487,7 @@ public class AvatarController : MonoBehaviour
 		{12, KinectWrapper.NuiSkeletonPositionIndex.WristLeft},
 		{13, KinectWrapper.NuiSkeletonPositionIndex.HandLeft},
 		
-		{14, KinectWrapper.NuiSkeletonPositionIndex.HipRight},
+		{14, KinectWrapper.NuiSkeletonPositionIndex.HipRight}, 
 		{15, KinectWrapper.NuiSkeletonPositionIndex.KneeRight},
 		{16, KinectWrapper.NuiSkeletonPositionIndex.AnkleRight},
 		{17, KinectWrapper.NuiSkeletonPositionIndex.FootRight},

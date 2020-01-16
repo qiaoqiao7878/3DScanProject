@@ -1093,7 +1093,7 @@ public class KinectManager : MonoBehaviour
 			CalibrationText.GetComponent<GUIText>().text = "WAITING FOR USERS";
 		}
 		
-		Debug.Log("Waiting for users.");
+		Debug.Log("Waiting for users1.");
 			
 		KinectInitialized = true;
 	}
@@ -1661,7 +1661,7 @@ public class KinectManager : MonoBehaviour
 		AllPlayersCalibrated = !TwoUsers ? allUsers.Count >= 1 : allUsers.Count >= 2; // false;
 		
 		// Try to replace that user!
-		Debug.Log("Waiting for users.");
+		Debug.Log("Waiting for users.2");
 
 		if(CalibrationText != null)
 		{

@@ -7,10 +7,11 @@ public class SetAvatar : MonoBehaviour
     void Start()
     {
         KinectManager manager = KinectManager.Instance;
+        
 
         if (manager)
         {
-            manager.ClearKinectUsers();
+            //manager.ClearKinectUsers();
             manager.Player1Avatars.Clear();
 
             AvatarController[] avatars = FindObjectsOfType(typeof(AvatarController)) as AvatarController[];
@@ -35,9 +36,16 @@ public class SetAvatar : MonoBehaviour
 
         if (manager)
         {
-             manager.ClearKinectUsers();
+             //manager.ClearKinectUsers();
              manager.Player1Avatars.Clear();
+
+            manager.ResetAvatarControllers();
         }
            
     }
+
+
+
+
+
 }

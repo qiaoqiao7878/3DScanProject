@@ -15,7 +15,7 @@ public class DisplayMenu : MonoBehaviour
 
     public void back()
     {
-        SceneManager.LoadScene(0);
+        SceneManager.LoadScene(1);
     }
 
     public void recordStart()

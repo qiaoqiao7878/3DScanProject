@@ -18,7 +18,7 @@ public class DanceMenu : MonoBehaviour
 
     public void back()
     {
-        SceneManager.LoadScene(0);
+        SceneManager.LoadScene(1);
     }
 
 
