@@ -491,6 +491,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: d626925d0acec1640a9aca92355bec43, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  numRecord: 1
+  poseFile: {fileID: 4900000, guid: 316244f9cdb30de4d9f8c178838a58ea, type: 3}
 --- !u!4 &564811909
 Transform:
   m_ObjectHideFlags: 0

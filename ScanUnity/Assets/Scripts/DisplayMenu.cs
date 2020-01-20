@@ -6,34 +6,50 @@ using System.Text;
 using UnityEngine;
 using UnityEngine.SceneManagement;
 
+//Script for Display Scene
 public class DisplayMenu : MonoBehaviour
 {
     protected GlobalManager GM = GlobalManager.instanceGM;
+    private int numRecord;
 
+    //Modelobjects
     public GameObject femaleModel;
     public GameObject maleModel;
 
+
+
+    //Button-Functions--------------------------------------------------------
+
+    //go back to MainMenu
     public void back()
     {
         SceneManager.LoadScene(1);
     }
 
-    public void recordStart()
+    public void recordPose()
     {
-        
-    }
+        //TODO
+        //write current point positions of Kinect Scan to a txt file
 
-    public void recordStop()
-    {
-
+        string pathout = "Assets/Files/record_" + numRecord + ".txt";
     }
+    
+    //------------------------------------------------------------------------
 
     void Awake()
     {
-        if(GM.getGender() == "female")
+        numRecord = GM.numRecord;
+        //choose current Model according to gender
+        changeGenderModel();
+    }
+
+    //Activate the model according to gender
+    public void changeGenderModel()
+    {
+        if (GM.getGender() == "female")
         {
             femaleModel.SetActive(true);
-            maleModel.SetActive(false);
+            maleModel.SetActive(false);            
         }
         else
         {

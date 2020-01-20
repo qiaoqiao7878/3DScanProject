@@ -6,44 +6,64 @@ using System;
 using System.IO;
 using TMPro;
 
+//Script for Config Scene 
 public class ConfigMenu : MonoBehaviour
 
-{
-    private double bodyheight = 1.7;
-    private double bodyweight = 0.5;
-    private string _gender = "female";
-    private string json;
-    public SMPLBlendshapes SMPLBlendshapes;
+{ 
+    private KinectManager manager = KinectManager.Instance;
     protected GlobalManager GM = GlobalManager.instanceGM;
 
+    //ModelObjects
     public GameObject femaleModel;
     public GameObject maleModel;
+    protected GameObject currentModel;    
 
-    protected GameObject currentModel;
-    private KinectManager manager = KinectManager.Instance;
-
+    //PopUp Window variables
     public GameObject PopUpWindow;
     public TextMeshProUGUI popText;
 
-    private int _numJoints = 22;
+    private string _gender = "female";
+
+    //default average values for height and weight
+    private double bodyheight = 1.7;
+    private double bodyweight = 0.5;
+    
+    //Variable for content for json File
+    private string json;
+
+    //Kinect Skeleton related stuff
+    private int _numJoints = 20; //22;
     private Vector3[] _joints;
     private uint UserId;
 
+
+    private class Bodyshape_female
+    {
+        //Default values of shape blendshapes
+        public double[] betas = new double[10] { -1.50338909, 0.41133214, -0.31445075, -0.90729174, 0.89161303, -1.1674648, -0.36843207, -0.42175958, 1.00391208, 1.2608627 };
+    }
+    private class Bodyshape_male
+    {
+        //Default values of shape blendshapes
+        public double[] betas = new double[10] { 0.55717977, -1.81291238, -0.54321285, 0.23705893, -0.50107065, 1.24639222, 0.43375487, 0.15281353, -0.23500944, 0.10896058 };
+    }
+
+
+    //Button-Functions--------------------------------------------------------
+    //Scanning the Skeleton for height and weight values for shape file
     public void scanning()
     {
+        Debug.Log("Scanning...");
         _joints = new Vector3[_numJoints];
-        updateBody();
+        bool correctCal = updateBody();
 
         //just use the head joint
         //bodyheight = _joints[3].y;
-
-
-        // output jointposition to txt file 
-
-        string pathout = "Assets/smpl/Samples/Betas/joint.txt";
-
+        
+        //output jointposition to txt file
+        string pathout = "Assets/Files/joint.txt";
         StreamWriter sw = new StreamWriter(pathout, true);
-
+        sw.WriteLine("Scan...------------------------------------------");
         for (int i = 0; i < _joints.Length; i++)
         {
             sw.WriteLine(_joints[i] + " ");
@@ -51,22 +71,22 @@ public class ConfigMenu : MonoBehaviour
         sw.Close();
         sw.Dispose();
 
-        if (bodyheight != 0.0)
-        {
-
-            //Debug.Log(bodyheight.ToString());
-            Bodyshape_female bodyshape_female = new Bodyshape_female();
-            //bodyshape_female.betas[0] = (bodyheight - 1.7) * 0.7;
-            Bodyshape_male bodyshape_male = new Bodyshape_male();
-            //bodyshape_male.betas[0] = (bodyheight - 1.7) * 0.7;
+        if (correctCal)
+        {        
+            Bodyshape_female bodyshape_female = new Bodyshape_female();            
+            Bodyshape_male bodyshape_male = new Bodyshape_male();            
 
             //just first directly set the bodyheight as betas[0]
             bodyshape_female.betas[0] = bodyheight;
+            //bodyshape_female.betas[0] = (bodyheight - 1.7) * 0.7;
             bodyshape_male.betas[0] = bodyheight;
+            //bodyshape_male.betas[0] = (bodyheight - 1.7) * 0.7;
+            //Set bodyweight as beta[1]
             bodyshape_female.betas[1] = -(bodyweight - 0.5) * 10;
             bodyshape_male.betas[1] = -(bodyweight - 0.5) * 10;
-            Debug.Log(bodyweight.ToString());
+            Debug.Log("Height: " + bodyweight.ToString());
 
+            //Write new shape parameters in json File according to gender
             if (_gender == "male")
             {
                 json = JsonUtility.ToJson(bodyshape_male);
@@ -78,23 +98,17 @@ public class ConfigMenu : MonoBehaviour
                 File.WriteAllText("Assets/Files/shape_female.json", json);
             }
 
-            //File.WriteAllText("Assets/smpl/Samples/Betas/user.json", json);
-
+            //Reload Scene to apply the new ShapeFile
             UnityEditor.AssetDatabase.Refresh();
             SceneManager.LoadScene(2);
         }
+        else
+        {
+            displayPopUp("I just cannot find you!!!\nPlease find more suitable place!!!");
+        }
     }
-
-    private class Bodyshape_female
-    {
-        public double[] betas = new double[10] { -1.50338909, 0.41133214, -0.31445075, -0.90729174, 0.89161303, -1.1674648, -0.36843207, -0.42175958, 1.00391208, 1.2608627 };
-    }
-    private class Bodyshape_male
-    {
-        public double[] betas = new double[10] { 0.55717977, -1.81291238, -0.54321285, 0.23705893, -0.50107065, 1.24639222, 0.43375487, 0.15281353, -0.23500944, 0.10896058 };
-    }
-
-
+     
+    //change the gender
     public void gender()
     {
         if (GM.getGender() == "female")
@@ -106,43 +120,34 @@ public class ConfigMenu : MonoBehaviour
         {
             GM.setGender("female");
         }
-
         changeGenderModel();
     }
 
+    //turn the model clockwise by 20°
     public void turnClock()
     {
-        Debug.Log("Turn");
         currentModel.transform.RotateAroundLocal(Vector3.up, 20.0f);
 
     }
-
+    //turn the model counter clockwise by 20°
     public void turnCounterClock()
     {
         currentModel.transform.RotateAroundLocal(Vector3.down, 20.0f);
     }
 
-    public void save()
-    {
-        displayPopUp("I just cannot find you!!!\nPlease find more suitable place!!!");
-    }
-
+    //Go back to MainMenu
     public void back()
     {
         SceneManager.LoadScene(1);
     }
 
-    public void closePopUp(){
-
-        PopUpWindow.SetActive(false);
-
-    }
-
-    public void displayPopUp(string msg)
+    //Close the popUp
+    public void closePopUp()
     {
-        popText.text = msg;
-        PopUpWindow.SetActive(true);
+        PopUpWindow.SetActive(false);
     }
+
+    //------------------------------------------------------------------------   
 
     void Awake()
     {
@@ -150,11 +155,18 @@ public class ConfigMenu : MonoBehaviour
         changeGenderModel();
     }
 
-    void Update()
+    //void Update()
+    //{
+    //}
+
+    //Display the popUp with message
+    public void displayPopUp(string msg)
     {
+        popText.text = msg;
+        PopUpWindow.SetActive(true);
     }
 
-
+    //change model according to gender
     public void changeGenderModel()
     {
         if (GM.getGender() == "female")
@@ -171,9 +183,9 @@ public class ConfigMenu : MonoBehaviour
         }
     }
 
-    void updateBody() {
+    //get current joint position and store them in _joints
+    bool updateBody() {
         UserId = manager.GetPlayer1ID();
-        //public Vector3 GetJointPosition(uint UserId, int joint)     
         for (int i = 0; i < _numJoints; i++) { 
             if (manager.IsJointTracked(UserId,i)){
                 _joints[i] = manager.GetJointPosition(UserId, i);
@@ -182,8 +194,17 @@ public class ConfigMenu : MonoBehaviour
         bodyheight = calBodyheight(ref _joints);
         bodyweight = calBodyweight(ref _joints);
 
+        //if some joints cant be tracked
+        if(bodyheight == 0.0 || bodyweight == 0.0)
+        {
+            return false;
+        }
+
+        return true;
     }
 
+    //Helperfunctions for Height & Weight Calculation
+    //Get Length between two joints
     public static double Length(ref Vector3[] jointsPos, NuiSkeletonPositionIndex p1, NuiSkeletonPositionIndex p2)
     {
         Vector3 pVec1 = jointsPos[(int)p1];
@@ -191,14 +212,14 @@ public class ConfigMenu : MonoBehaviour
         double length = Math.Sqrt(Math.Pow(pVec1.x - pVec2.x, 2) + Math.Pow(pVec1.y - pVec2.y, 2) + Math.Pow(pVec1.z - pVec2.z, 2));
         return length;
     }
-
+    //Get Length between one joint and a vector
     public static double Lengthwithvector(ref Vector3[] jointsPos, NuiSkeletonPositionIndex p1, Vector3 p2)
     {
         Vector3 pVec1 = jointsPos[(int)p1];
         double length = Math.Sqrt(Math.Pow(pVec1.x - p2.x, 2) + Math.Pow(pVec1.y - p2.y, 2) + Math.Pow(pVec1.z - p2.z, 2));
         return length;
     }
-
+    //Get Middle of two joints
     public static Vector3 Average(ref Vector3[] jointsPos, NuiSkeletonPositionIndex p1, NuiSkeletonPositionIndex p2)
     {
         Vector3 pVec1 = jointsPos[(int)p1];
@@ -208,8 +229,8 @@ public class ConfigMenu : MonoBehaviour
         return avg_joint;
     }
 
-
-
+    
+    //Calculate the bodyheight from the tracked joint positions
     public double calBodyheight(ref Vector3[] jointsPos)
     {
         double torso_height = 0;
@@ -237,67 +258,23 @@ public class ConfigMenu : MonoBehaviour
         }
         else
         {
-            Debug.Log("I just cannot find you!!! Please find more suitable place!!! :(");
-            displayPopUp("I just cannot find you!!!\nPlease find more suitable place!!!");
+            Debug.Log("I just cannot find you!");
             return 0.0;
         }
         return tot_height;
-
     }
+
+    //Calculate the bodyweight from the tracked joint positions of the hands/elbows
     public static double calBodyweight(ref Vector3[] jointsPos)
     {
         double weightValue = 0;
         weightValue = Length(ref jointsPos, NuiSkeletonPositionIndex.ElbowLeft, NuiSkeletonPositionIndex.ElbowRight);
         return weightValue;
-    }
+    }   
 
-    // j2 is the joint that links the other two joints
-    public static double calAngle(ref Vector3[] jointsPos, NuiSkeletonPositionIndex n1, NuiSkeletonPositionIndex n2, NuiSkeletonPositionIndex n3)
-    {
-        Vector3 j1 = jointsPos[(int)n1];
-        Vector3 j2 = jointsPos[(int)n2];
-        Vector3 j3 = jointsPos[(int)n3];
-        double link1 = Math.Sqrt(Math.Pow(j1.x - j2.x, 2) + Math.Pow(j1.y - j2.y, 2) + Math.Pow(j1.z - j2.z, 2));
-        double link2 = Math.Sqrt(Math.Pow(j3.x - j2.x, 2) + Math.Pow(j3.y - j2.y, 2) + Math.Pow(j3.z - j2.z, 2));
-        double dot = Vector3.Dot((j1 - j2), (j3 - j2));
-        double angle = dot / (link1 * link2);
-        return Math.Acos(angle);
-    }
-
-    // pick up points to calculate the final point
-    public static double pointGiven(ref Vector3[] jointPos)
-    {
-        double[] points = new double[14];
-        points[0] = calAngle(ref jointPos, NuiSkeletonPositionIndex.Head, NuiSkeletonPositionIndex.ShoulderCenter, NuiSkeletonPositionIndex.ShoulderLeft);
-        points[1] = calAngle(ref jointPos, NuiSkeletonPositionIndex.ShoulderCenter, NuiSkeletonPositionIndex.ShoulderLeft, NuiSkeletonPositionIndex.ElbowLeft);
-        points[2] = calAngle(ref jointPos, NuiSkeletonPositionIndex.ShoulderLeft, NuiSkeletonPositionIndex.ElbowLeft, NuiSkeletonPositionIndex.WristLeft);
-        points[3] = calAngle(ref jointPos, NuiSkeletonPositionIndex.ElbowLeft, NuiSkeletonPositionIndex.WristLeft, NuiSkeletonPositionIndex.HandLeft);
-        points[4] = calAngle(ref jointPos, NuiSkeletonPositionIndex.HipCenter, NuiSkeletonPositionIndex.HipLeft, NuiSkeletonPositionIndex.KneeLeft);
-        points[5] = calAngle(ref jointPos, NuiSkeletonPositionIndex.HipLeft, NuiSkeletonPositionIndex.KneeLeft, NuiSkeletonPositionIndex.AnkleLeft);
-        points[6] = calAngle(ref jointPos, NuiSkeletonPositionIndex.KneeLeft, NuiSkeletonPositionIndex.AnkleLeft, NuiSkeletonPositionIndex.FootLeft);
-        points[7] = calAngle(ref jointPos, NuiSkeletonPositionIndex.Head, NuiSkeletonPositionIndex.ShoulderCenter, NuiSkeletonPositionIndex.ShoulderRight);
-        points[8] = calAngle(ref jointPos, NuiSkeletonPositionIndex.ShoulderCenter, NuiSkeletonPositionIndex.ShoulderRight, NuiSkeletonPositionIndex.ElbowRight);
-        points[9] = calAngle(ref jointPos, NuiSkeletonPositionIndex.ShoulderRight, NuiSkeletonPositionIndex.ElbowRight, NuiSkeletonPositionIndex.WristRight);
-        points[10] = calAngle(ref jointPos, NuiSkeletonPositionIndex.ElbowRight, NuiSkeletonPositionIndex.WristRight, NuiSkeletonPositionIndex.HandRight);
-        points[11] = calAngle(ref jointPos, NuiSkeletonPositionIndex.HipCenter, NuiSkeletonPositionIndex.HipRight, NuiSkeletonPositionIndex.KneeRight);
-        points[12] = calAngle(ref jointPos, NuiSkeletonPositionIndex.HipRight, NuiSkeletonPositionIndex.KneeRight, NuiSkeletonPositionIndex.AnkleRight);
-        points[13] = calAngle(ref jointPos, NuiSkeletonPositionIndex.KneeRight, NuiSkeletonPositionIndex.AnkleRight, NuiSkeletonPositionIndex.FootRight);
-        double angle = 0;
-        for(int i=0; i<14; i++)
-        {
-            angle += points[i];
-        }
-        Debug.Log("the final point is: " + angle);
-
-        return angle;
-    }
-
-
-
-
+    //Enum for Joint Indices
     public enum NuiSkeletonPositionIndex : int
-    {
-        
+    {        
         HipCenter = 0,
         Spine = 1,
         ShoulderCenter = 2,
@@ -319,5 +296,4 @@ public class ConfigMenu : MonoBehaviour
         AnkleRight = 18,
         FootRight = 19,
     }
-
 }

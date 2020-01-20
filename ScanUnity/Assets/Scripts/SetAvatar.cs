@@ -2,13 +2,18 @@
 using System.Collections.Generic;
 using UnityEngine;
 
+//updates the avatars of the Kinect user when Scene is loaded
 public class SetAvatar : MonoBehaviour
 {
+
+    //global Instance of KinectManager
+    KinectManager manager;
+
+    //called on Start
     void Start()
     {
-        KinectManager manager = KinectManager.Instance;
+        manager = KinectManager.Instance;
         
-
         if (manager)
         {
             //manager.ClearKinectUsers();
@@ -21,31 +26,21 @@ public class SetAvatar : MonoBehaviour
                 manager.Player1Avatars.Add(avatar.gameObject);
             }
 
-            manager.ResetAvatarControllers();
-
-            // add available gesture listeners
-            manager.gestureListeners.Clear();
-                        
+            manager.ResetAvatarControllers();                      
 
         }
     }
 
+    //called when destroyed to delete the avatar in left scene
     void OnDestroy()
     {
-        KinectManager manager = KinectManager.Instance;
-
         if (manager)
         {
-             //manager.ClearKinectUsers();
-             manager.Player1Avatars.Clear();
+            //manager.ClearKinectUsers();
+            manager.Player1Avatars.Clear();
 
             manager.ResetAvatarControllers();
-        }
-           
+        }           
     }
-
-
-
-
-
+          
 }
