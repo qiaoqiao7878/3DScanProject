@@ -9,6 +9,23 @@ public class GlobalManager : MonoBehaviour
     public static string genderGM = "female";
 
 
+    public class pose
+    {
+        public string name;
+        public double[] angles;
+        public Vector3[] jointPos;
+
+
+        public pose(string name, double[] angles, Vector3[] pos)
+        {
+            this.name = name;
+            this.angles = angles;
+            this.jointPos = pos;
+        }
+    }
+
+    public ArrayList poseList;
+
     public string getGender()
     {
         return genderGM;
@@ -38,12 +55,27 @@ public class GlobalManager : MonoBehaviour
     // Start is called before the first frame update
     void Start()
     {
-        
+        initializePoseList();
+
+
     }
 
     // Update is called once per frame
     void Update()
     {
         
+    }
+
+    //Read the file 
+    void initializePoseList()
+    {
+        double[] newangle = new double[14];
+        Vector3[] newPose = new Vector3[20];
+        for (int i = 0; i < 14; i++)
+        {
+            newangle[i] = 0;
+        }
+        pose newpose = new pose("id1", newangle, newPose);
+        poseList.Add(newpose);
     }
 }
