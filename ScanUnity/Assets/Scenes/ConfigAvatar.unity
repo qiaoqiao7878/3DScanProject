@@ -2338,16 +2338,6 @@ PrefabInstance:
       propertyPath: m_Name
       value: FemaleModel
       objectReference: {fileID: 0}
-    - target: {fileID: 5055122484407692986, guid: bd5fbe4ec89511a45b4c59533a097ad2,
-        type: 3}
-      propertyPath: m_ApplyRootMotion
-      value: 0
-      objectReference: {fileID: 0}
-    - target: {fileID: 5055122485230007684, guid: bd5fbe4ec89511a45b4c59533a097ad2,
-        type: 3}
-      propertyPath: shapeParmsJSON
-      value: 
-      objectReference: {fileID: 4900000, guid: 4cfa1a9923502b24a92e0f3d680f010a, type: 3}
     m_RemovedComponents: []
   m_SourcePrefab: {fileID: 100100000, guid: bd5fbe4ec89511a45b4c59533a097ad2, type: 3}
 --- !u!1 &1652942141 stripped
@@ -2942,11 +2932,6 @@ PrefabInstance:
       propertyPath: m_Name
       value: MaleModel
       objectReference: {fileID: 0}
-    - target: {fileID: 3037989326527156654, guid: d56d6e023bb10cd41bf5b19f8ac38906,
-        type: 3}
-      propertyPath: shapeParmsJSON
-      value: 
-      objectReference: {fileID: 4900000, guid: 4cfa1a9923502b24a92e0f3d680f010a, type: 3}
     - target: {fileID: 3536806088062170974, guid: d56d6e023bb10cd41bf5b19f8ac38906,
         type: 3}
       propertyPath: m_LocalPosition.x
