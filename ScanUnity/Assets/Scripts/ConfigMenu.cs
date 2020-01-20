@@ -51,35 +51,38 @@ public class ConfigMenu : MonoBehaviour
         sw.Close();
         sw.Dispose();
 
-
-        //Debug.Log(bodyheight.ToString());
-        Bodyshape_female bodyshape_female = new Bodyshape_female();
-        //bodyshape_female.betas[0] = (bodyheight - 1.7) * 0.7;
-        Bodyshape_male bodyshape_male = new Bodyshape_male();
-        //bodyshape_male.betas[0] = (bodyheight - 1.7) * 0.7;
-
-        //just first directly set the bodyheight as betas[0]
-        bodyshape_female.betas[0] = bodyheight;
-        bodyshape_male.betas[0] = bodyheight;
-        bodyshape_female.betas[1] = -(bodyweight - 0.5) * 10;
-        bodyshape_male.betas[1] = -(bodyweight - 0.5) * 10;
-        Debug.Log(bodyweight.ToString());
-
-        if (_gender == "male")
+        if (bodyheight != 0.0)
         {
-            json = JsonUtility.ToJson(bodyshape_male);
-            File.WriteAllText("Assets/Files/shape_male.json", json);
-        }
-        else
-        {
-            json = JsonUtility.ToJson(bodyshape_female);
-            File.WriteAllText("Assets/Files/shape_female.json", json);
-        }
 
-        //File.WriteAllText("Assets/smpl/Samples/Betas/user.json", json);
+            //Debug.Log(bodyheight.ToString());
+            Bodyshape_female bodyshape_female = new Bodyshape_female();
+            //bodyshape_female.betas[0] = (bodyheight - 1.7) * 0.7;
+            Bodyshape_male bodyshape_male = new Bodyshape_male();
+            //bodyshape_male.betas[0] = (bodyheight - 1.7) * 0.7;
 
-        UnityEditor.AssetDatabase.Refresh();
-        SceneManager.LoadScene(1);
+            //just first directly set the bodyheight as betas[0]
+            bodyshape_female.betas[0] = bodyheight;
+            bodyshape_male.betas[0] = bodyheight;
+            bodyshape_female.betas[1] = -(bodyweight - 0.5) * 10;
+            bodyshape_male.betas[1] = -(bodyweight - 0.5) * 10;
+            Debug.Log(bodyweight.ToString());
+
+            if (_gender == "male")
+            {
+                json = JsonUtility.ToJson(bodyshape_male);
+                File.WriteAllText("Assets/Files/shape_male.json", json);
+            }
+            else
+            {
+                json = JsonUtility.ToJson(bodyshape_female);
+                File.WriteAllText("Assets/Files/shape_female.json", json);
+            }
+
+            //File.WriteAllText("Assets/smpl/Samples/Betas/user.json", json);
+
+            UnityEditor.AssetDatabase.Refresh();
+            SceneManager.LoadScene(2);
+        }
     }
 
     private class Bodyshape_female
