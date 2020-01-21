@@ -5,6 +5,8 @@ using UnityEngine.SceneManagement;
 using System;
 using UnityEngine.UI;
 using TMPro;
+using System.IO;
+using System.Text;
 
 //Script for Dancing Scene
 public class DanceMenu : MonoBehaviour
@@ -24,7 +26,8 @@ public class DanceMenu : MonoBehaviour
     public TextMeshProUGUI pointText;
 
     //Variables for the target Poses
-    private ArrayList poseList;
+    //private ArrayList poseList;
+    public List<Vector3[]> poseList = new List<Vector3[]>();
     private int numPose;
     private int currentPose = -1;
 
@@ -35,18 +38,22 @@ public class DanceMenu : MonoBehaviour
     private float roundTime = 100f; //seconds
     private float startTime;
 
+
     //Button-Functions--------------------------------------------------------
 
     public void startDance()
     {
+        GM.initializePoseList();
         totalPoints = 0;
         currentPose = -1;
+        Debug.Log(poseList[0]);
         setPointText();
         bool next = makeNextPose();
         if (next)
         {
             started = true;
             startButton.interactable = false;
+            
         }
         else
         {
@@ -69,6 +76,7 @@ public class DanceMenu : MonoBehaviour
         //get the poseList
         poseList = GM.getPoseList();
         numPose = poseList.Count;
+        
     }
 
     void Update()
@@ -99,11 +107,13 @@ public class DanceMenu : MonoBehaviour
                     startButton.interactable = true;
                     //Reload TargetModel Restpose
                     //TODO
+
                 }
             }
 
         }
     }
+        
 
     //Activate the model according to gender
     public void changeGenderModel()
@@ -146,9 +156,9 @@ public class DanceMenu : MonoBehaviour
         currentPose++;
         if(currentPose < numPose)
         {
-            GlobalManager.pose newPose = (GlobalManager.pose)poseList[currentPose];
-            changeTargetModel(newPose.jointPos);
-            startTime = Time.time;
+            //GlobalManager.pose newPose = (GlobalManager.pose)poseList[currentPose];
+            //changeTargetModel(newPose.jointPos);
+            //startTime = Time.time;
 
             return true;
         }

@@ -2,6 +2,8 @@
 using System.Collections.Generic;
 using System;
 using UnityEngine;
+using System.IO;
+using System.Text;
 
 //Script/Singelton for global variables over several scenes
 public class GlobalManager : MonoBehaviour
@@ -11,11 +13,14 @@ public class GlobalManager : MonoBehaviour
     
     public static string genderGM = "female";   //global Gender
 
-    public int numRecord = 1;
+    public int numRecord = 5;
 
-    public ArrayList poseList;  //contains the target poses for the dancing
-
+    //public ArrayList poseList;  //contains the target poses for the dancing
+    public List<Vector3[]> poseList = new List<Vector3[]>();
     public TextAsset poseFile; //contains recorded poses in a txt file
+
+    private Vector3[] _joints;
+    private int _numJoints = 20; //22;
 
     //--------------------------------------------------------------------------------------
 
@@ -46,7 +51,7 @@ public class GlobalManager : MonoBehaviour
     }
 
     //get PoseList
-    public ArrayList getPoseList()
+    public List<Vector3[]> getPoseList()
     {
         return poseList;
     }
@@ -70,23 +75,68 @@ public class GlobalManager : MonoBehaviour
     // Start is called before the first frame update
     void Start()
     {
+        Debug.Log("init_start");
         initializePoseList(); //Fill the poseList with poses in poseFile
     }
 
     // Update is called once per frame
     //void Update()
     //{
-        
+
     //}
 
+    
+
+
+
+    public Vector3 StringToVector3(string sVector)
+    {
+        // Remove the parentheses
+        if (sVector.StartsWith("(") && sVector.EndsWith(") "))
+        {
+            sVector = sVector.Substring(1, sVector.Length - 3);
+        }
+        Debug.Log(sVector+"sVec");
+        // split the items
+        string[] sArray = sVector.Split(',');
+       
+
+        // store as a Vector3
+        Vector3 result = new Vector3(
+            float.Parse(sArray[0]),
+            float.Parse(sArray[1]),
+            float.Parse(sArray[2]));
+
+        return result;
+    }
+
     //Read the pose file and store it in the poseList 
-    void initializePoseList()
+    public void initializePoseList()
     {
         //TODO
         //open poseFile
 
         //read poseFile
-
+        
+        for (int i = 1; i <= numRecord; i++)
+        {
+            
+            string pathout = "Assets/Files/record_" + i + ".txt";
+            //set flase so it will generate a new file every time.
+            StreamReader sr = new StreamReader(pathout);
+            //
+            _joints = new Vector3[_numJoints];
+            Debug.Log("init"+i);
+            for (int j = 0; j < _numJoints; j++)
+            {
+                
+                _joints[j] = StringToVector3(sr.ReadLine());
+                Debug.Log(_joints[j]+"joint");
+            }
+            poseList.Add(_joints);
+            sr.Close();
+            sr.Dispose();
+        }
         //calculate angles of joints
 
         //save poses in poseList
