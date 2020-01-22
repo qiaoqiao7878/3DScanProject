@@ -32,6 +32,7 @@ public class DanceMenu : MonoBehaviour
     private int currentPose = -1;
 
     private double[] anglesPlayer = new double[14];
+    private double[] anglesTarget = new double[14];
 
     private bool started = false;
     public Button startButton;
@@ -43,7 +44,7 @@ public class DanceMenu : MonoBehaviour
 
     public void startDance()
     {
-        GM.initializePoseList();
+        //GM.initializePoseList();
         totalPoints = 0;
         currentPose = -1;
         Debug.Log(poseList[0]);
@@ -156,9 +157,10 @@ public class DanceMenu : MonoBehaviour
         currentPose++;
         if(currentPose < numPose)
         {
-            //GlobalManager.pose newPose = (GlobalManager.pose)poseList[currentPose];
-            //changeTargetModel(newPose.jointPos);
-            //startTime = Time.time;
+            Vector3[] newPose = poseList[currentPose];
+            changeTargetModel(newPose);
+            calculateTargetAngles(newPose);
+            startTime = Time.time;
 
             return true;
         }
@@ -173,6 +175,13 @@ public class DanceMenu : MonoBehaviour
     {
         //TODO
         //calculate angles and store them in anglesPlayer
+    }
+
+    //calculate 14 angles of the Target of Vector3 array
+    void calculateTargetAngles(Vector3[] jointPos)
+    {
+        //TODO
+        //calculate angles and store them in anglesTarget
     }
 
     // j2 is the joint that links the other two joints
@@ -216,7 +225,7 @@ public class DanceMenu : MonoBehaviour
         return angle;
     }
 
-    //compare anglesPlayer with poseList[currentPose], return true if the difference is under a threshold
+    //compare anglesPlayer with anglesTarget, return true if the difference is under a threshold
     bool compareAngles()
     {
         //TODO

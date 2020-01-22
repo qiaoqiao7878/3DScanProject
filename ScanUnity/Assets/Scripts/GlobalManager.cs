@@ -17,7 +17,7 @@ public class GlobalManager : MonoBehaviour
 
     //public ArrayList poseList;  //contains the target poses for the dancing
     public List<Vector3[]> poseList = new List<Vector3[]>();
-    public TextAsset poseFile; //contains recorded poses in a txt file
+    //public TextAsset poseFile; //contains recorded poses in a txt file
 
     private Vector3[] _joints;
     private int _numJoints = 20; //22;
@@ -113,7 +113,7 @@ public class GlobalManager : MonoBehaviour
     //Read the pose file and store it in the poseList 
     public void initializePoseList()
     {
-        //TODO
+        
         //open poseFile
 
         //read poseFile

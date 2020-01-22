@@ -46,7 +46,7 @@ public class DisplayMenu : MonoBehaviour
         if (numRecord < numRecordtotal)
         {
             
-            //TODO
+            
             //write current point positions of Kinect Scan to a txt file
             string pathout = "Assets/Files/record_" + numRecord + ".txt";
 
