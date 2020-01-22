@@ -20,6 +20,7 @@ public class DanceMenu : MonoBehaviour
 
     //Modelobject for Targetpose
     public GameObject targetModel;
+    protected Transform[] bones;
 
     //Points Variables
     private int totalPoints = 0;
@@ -77,7 +78,10 @@ public class DanceMenu : MonoBehaviour
         //get the poseList
         poseList = GM.getPoseList();
         numPose = poseList.Count;
-        
+
+        bones = new Transform[20];
+        MapBones();
+
     }
 
     void Update()
@@ -107,7 +111,7 @@ public class DanceMenu : MonoBehaviour
                     started = false;
                     startButton.interactable = true;
                     //Reload TargetModel Restpose
-                    //TODO
+                    //TODO maybe we leaf it in last pose
 
                 }
             }
@@ -149,6 +153,41 @@ public class DanceMenu : MonoBehaviour
     {
         //TODO
         //apply the new joint positions to avatar of the targetmodel
+        for(int i = 0; i < bones.Length; i++)
+        {
+            bones[i].position = jointPos[i]; //dont know if this is right
+        }
+    }
+
+    //From AvatarController
+    protected virtual void MapBones()
+    {
+        // get bone transforms from the animator component
+        var animatorComponent = targetModel.GetComponent<Animator>();
+
+        for (int boneIndex = 0; boneIndex < bones.Length; boneIndex++)
+        {
+            if (!boneIndex2MecanimMap.ContainsKey(boneIndex))
+                continue;
+
+            bones[boneIndex] = animatorComponent.GetBoneTransform(boneIndex2MecanimMap[boneIndex]);
+        }
+    }
+    protected Vector3 Kinect2AvatarPos(Vector3 jointPosition, bool bMoveVertically)
+    {
+        float xPos;
+        float yPos;
+        float zPos;
+
+        xPos = -jointPosition.x; //- xOffset;
+
+        yPos = jointPosition.y; //- yOffset;
+        zPos = -jointPosition.z;  //- zOffset;
+
+        // If we are tracking vertical movement, update the y. Otherwise leave it alone.
+        Vector3 avatarJointPos = new Vector3(xPos, bMoveVertically ? yPos : 0f, zPos);
+
+        return avatarJointPos;
     }
 
     //choose next Pose in List, return false if List reached the end
@@ -257,4 +296,34 @@ public class DanceMenu : MonoBehaviour
         AnkleRight = 18,
         FootRight = 19,
     }
+
+    private readonly Dictionary<int, HumanBodyBones> boneIndex2MecanimMap = new Dictionary<int, HumanBodyBones>
+    {
+        {0, HumanBodyBones.Hips},
+        {1, HumanBodyBones.Spine},
+        {2, HumanBodyBones.Neck},
+        {3, HumanBodyBones.Head},
+
+        {4, HumanBodyBones.LeftShoulder},
+        {5, HumanBodyBones.LeftUpperArm},
+        {6, HumanBodyBones.LeftLowerArm},
+        {7, HumanBodyBones.LeftHand},
+        {8, HumanBodyBones.LeftIndexProximal},
+
+        {9, HumanBodyBones.RightShoulder},
+        {10, HumanBodyBones.RightUpperArm},
+        {11, HumanBodyBones.RightLowerArm},
+        {12, HumanBodyBones.RightHand},
+        {13, HumanBodyBones.RightIndexProximal},
+
+        {14, HumanBodyBones.LeftUpperLeg},
+        {15, HumanBodyBones.LeftLowerLeg},
+        {16, HumanBodyBones.LeftFoot},
+        {17, HumanBodyBones.LeftToes},
+
+        {18, HumanBodyBones.RightUpperLeg},
+        {19, HumanBodyBones.RightLowerLeg},
+        {20, HumanBodyBones.RightFoot},
+        {21, HumanBodyBones.RightToes},
+    };
 }

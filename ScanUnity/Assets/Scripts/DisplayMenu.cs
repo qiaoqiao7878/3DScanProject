@@ -120,7 +120,7 @@ public class DisplayMenu : MonoBehaviour
         {
             if (manager.IsJointTracked(UserId, i))
             {
-                _joints[i] = manager.GetJointPosition(UserId, i);
+                _joints[i] = manager.GetJointPosition(UserId, i); //-manager.GetUserPosition(UserID);
             }
         }
     }
