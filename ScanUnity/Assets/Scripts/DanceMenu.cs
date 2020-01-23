@@ -22,7 +22,7 @@ public class DanceMenu : MonoBehaviour
 
     //Modelobject for Targetpose
     public GameObject targetModel;
-    protected Transform[] bones;
+    protected Transform[] bones = new Transform[20];
 
     //Points Variables
     private int totalPoints = 0;
@@ -78,13 +78,14 @@ public class DanceMenu : MonoBehaviour
 
     void Awake()
     {
+        UnityEngine.Debug.Log(poseList);
         //choose current Model according to gender
         changeGenderModel();
         //get the poseList
         poseList = GM.getPoseList();
-        numPose = poseList.Count;
 
-        bones = new Transform[20];
+        numPose = poseList.Count;
+        UnityEngine.Debug.Log(numPose);
         MapBones();
 
     }
@@ -155,22 +156,31 @@ public class DanceMenu : MonoBehaviour
     }
 
     //Set the new Skeleton joint position of the avatar of the target model
-    void changeTargetModel(Vector3[] jointPos)
+    void changeTargetModel( Vector3[] jointPos)
     {
+        UnityEngine.Debug.Log("joint"+jointPos.Length);
+        UnityEngine.Debug.Log("bone" + bones.Length);
         //TODO
         //apply the new joint positions to avatar of the targetmodel
-        for (int i = 0; i < bones.Length; i++)
-        {
+        for (int i = 0; i < jointPos.Length; i++)
+        { if (bones[i] == null) {
+                UnityEngine.Debug.Log("fgfg");
+                UnityEngine.Debug.Log(i);
+                continue;
+            }
+            UnityEngine.Debug.Log(jointPos[i]);
             bones[i].position = jointPos[i]; //dont know if this is right
+           
         }
     }
 
     //From AvatarController
     protected virtual void MapBones()
     {
+        UnityEngine.Debug.Log("bone0" + bones.Length);
         // get bone transforms from the animator component
         var animatorComponent = targetModel.GetComponent<Animator>();
-
+        UnityEngine.Debug.Log("bone1" + bones.Length);
         for (int boneIndex = 0; boneIndex < bones.Length; boneIndex++)
         {
             if (!boneIndex2MecanimMap.ContainsKey(boneIndex))
@@ -178,6 +188,7 @@ public class DanceMenu : MonoBehaviour
 
             bones[boneIndex] = animatorComponent.GetBoneTransform(boneIndex2MecanimMap[boneIndex]);
         }
+        UnityEngine.Debug.Log("bone2" + bones.Length);
     }
     protected Vector3 Kinect2AvatarPos(Vector3 jointPosition, bool bMoveVertically)
     {
@@ -202,7 +213,15 @@ public class DanceMenu : MonoBehaviour
         currentPose++;
         if (currentPose < numPose)
         {
-            Vector3[] newPose = poseList[currentPose];
+
+            Vector3[] newPose = new Vector3[20];
+            newPose = poseList[currentPose];
+            for (int i = 0; i < 20 ; i++)
+            {
+                UnityEngine.Debug.Log(newPose[i] + "newpose");
+            }
+            
+            
             changeTargetModel(newPose);
             calculateTargetAngles(newPose);
             startTime = Time.time;

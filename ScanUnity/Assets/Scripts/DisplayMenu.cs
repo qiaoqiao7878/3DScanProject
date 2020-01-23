@@ -57,8 +57,8 @@ public class DisplayMenu : MonoBehaviour
            
             //output jointposition to txt file
 
-            if (true)
-            //if (IsAllJointTracked() == true)
+            //if (true)
+            if (IsAllJointTracked() == true)
             {
                 //set flase so it will generate a new file every time.
                 StreamWriter sw = new StreamWriter(pathout, false);
@@ -66,7 +66,7 @@ public class DisplayMenu : MonoBehaviour
                 //sw.WriteLine("Recording...------------------------------------------");
                 for (int i = 0; i < _joints.Length; i++)
                 {
-                    sw.WriteLine(_joints[i] + " ");
+                    sw.WriteLine(_joints[i]);
                 }
                 sw.Close();
                 sw.Dispose();

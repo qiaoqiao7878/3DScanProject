@@ -59,6 +59,7 @@ public class GlobalManager : MonoBehaviour
     //Awake is always called before any Start functions
     void Awake()
     {
+        //Debug.Log("awake");
         //Check if instance already exists
         if (instanceGM == null)
             //if not, set instance to this
@@ -75,8 +76,10 @@ public class GlobalManager : MonoBehaviour
     // Start is called before the first frame update
     void Start()
     {
-        Debug.Log("init_start");
+        //Debug.Log("init_start");
         initializePoseList(); //Fill the poseList with poses in poseFile
+        Debug.Log("GM"+poseList.Count);
+            
     }
 
     // Update is called once per frame
@@ -89,11 +92,11 @@ public class GlobalManager : MonoBehaviour
     public Vector3 StringToVector3(string sVector)
     {
         // Remove the parentheses
-        if (sVector.StartsWith("(") && sVector.EndsWith(") "))
+        if (sVector.StartsWith("(") && sVector.EndsWith(")"))
         {
-            sVector = sVector.Substring(1, sVector.Length - 3);
+            sVector = sVector.Substring(1, sVector.Length - 2);
         }
-        Debug.Log(sVector+"sVec");
+        //Debug.Log(sVector+"sVec");
         // split the items
         string[] sArray = sVector.Split(',');
        
@@ -104,6 +107,8 @@ public class GlobalManager : MonoBehaviour
             float.Parse(sArray[1]),
             float.Parse(sArray[2]));
 
+        //UnityEngine.Debug.Log("=========== result:");
+        //UnityEngine.Debug.Log(result);
         return result;
     }
 
@@ -123,7 +128,7 @@ public class GlobalManager : MonoBehaviour
             {
                 
                 _joints[j] = StringToVector3(sr.ReadLine());
-                Debug.Log(_joints[j]+"joint");
+                //Debug.Log(_joints[j]+"joint");
             }
             poseList.Add(_joints);
             sr.Close();
