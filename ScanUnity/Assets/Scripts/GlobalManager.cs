@@ -11,31 +11,35 @@ public class GlobalManager : MonoBehaviour
     //Global Variables----------------------------------------------------------------------      
     public static GlobalManager instanceGM = null;     //Static instance of GameManager which allows it to be accessed by any other script.
     
-    public static string genderGM = "female";   //global Gender
+    private static string genderGM = "female";   //global Gender
 
-    public int numRecord = 5;
+    private int numRecord = 1; //5          change!
 
-    //public ArrayList poseList;  //contains the target poses for the dancing
-    public List<Vector3[]> poseList = new List<Vector3[]>();
-    //public TextAsset poseFile; //contains recorded poses in a txt file
+    private List<pose> poseList = new List<pose>();  //contains the target poses for the dancing
 
-    private Vector3[] _joints;
-    private int _numJoints = 20; //22;
-
+    private int _numJoints = 20;
+    private int _numBones = 22;   
     //--------------------------------------------------------------------------------------
 
     //Class for a stored pose, with name, 14 angles and 20 joint positions
     public class pose
     {
-        public string name;
-        public double[] angles;
+        public string id;
         public Vector3[] jointPos;
+        public Quaternion[] jointRot;
+        public Vector3 offset;
 
-        public pose(string name, double[] angles, Vector3[] pos)
+        public Vector3[] bonesPos;
+        public Quaternion[] bonesRot;
+
+        public pose(string id, Vector3[] Pos, Quaternion[] Rot, Vector3 off, Vector3[] PosB, Quaternion[] RotB)
         {
-            this.name = name;
-            this.angles = angles;
-            this.jointPos = pos;
+            this.id = id;
+            this.jointPos = Pos;
+            this.jointRot = Rot;
+            this.offset = off;
+            this.bonesPos = PosB;
+            this.bonesRot = RotB;
         }
     }
      
@@ -51,7 +55,7 @@ public class GlobalManager : MonoBehaviour
     }
 
     //get PoseList
-    public List<Vector3[]> getPoseList()
+    public List<pose> getPoseList()
     {
         return poseList;
     }
@@ -59,7 +63,6 @@ public class GlobalManager : MonoBehaviour
     //Awake is always called before any Start functions
     void Awake()
     {
-        //Debug.Log("awake");
         //Check if instance already exists
         if (instanceGM == null)
             //if not, set instance to this
@@ -76,18 +79,9 @@ public class GlobalManager : MonoBehaviour
     // Start is called before the first frame update
     void Start()
     {
-        //Debug.Log("init_start");
-        initializePoseList(); //Fill the poseList with poses in poseFile
-        Debug.Log("GM"+poseList.Count);
-            
+        initializePoseList(); //Fill the poseList with poses from txt Files      
+        
     }
-
-    // Update is called once per frame
-    //void Update()
-    //{
-
-    //}
-
 
     public Vector3 StringToVector3(string sVector)
     {
@@ -96,41 +90,78 @@ public class GlobalManager : MonoBehaviour
         {
             sVector = sVector.Substring(1, sVector.Length - 2);
         }
-        //Debug.Log(sVector+"sVec");
         // split the items
         string[] sArray = sVector.Split(',');
-       
-
         // store as a Vector3
         Vector3 result = new Vector3(
             float.Parse(sArray[0]),
             float.Parse(sArray[1]),
-            float.Parse(sArray[2]));
-
-        //UnityEngine.Debug.Log("=========== result:");
-        //UnityEngine.Debug.Log(result);
+            float.Parse(sArray[2])
+            );
         return result;
     }
 
-    //Read the pose file and store it in the poseList 
+    public Quaternion StringToQuaternion(string sVector)
+    {
+        // Remove the parentheses
+        if (sVector.StartsWith("(") && sVector.EndsWith(")"))
+        {
+            sVector = sVector.Substring(1, sVector.Length - 2);
+        }
+        // split the items
+        string[] sArray = sVector.Split(',');
+        // store as a Vector3
+        Quaternion result = new Quaternion(
+            float.Parse(sArray[0]),
+            float.Parse(sArray[1]),
+            float.Parse(sArray[2]),
+            1.0f                            //float.Parse(sArray[3])   change!
+            );
+        return result;        
+    }
+
+    //Read the pose files and store it in the poseList 
     public void initializePoseList()
     {
+        string newId;
+        Vector3[] newPos = new Vector3[_numJoints];
+        Quaternion[] newRot = new Quaternion[_numJoints];
+        Vector3 newOff;
+        Vector3[] newPosB = new Vector3[_numBones];
+        Quaternion[] newRotB = new Quaternion[_numBones];
+
         for (int i = 1; i <= numRecord; i++)
-        {
-            
+        {            
             string pathout = "Assets/Files/record_" + i + ".txt";
-            //set flase so it will generate a new file every time.
-            StreamReader sr = new StreamReader(pathout);
-            //
-            _joints = new Vector3[_numJoints];
-            Debug.Log("init"+i);
-            for (int j = 0; j < _numJoints; j++)
+            //set false so it will generate a new file every time.
+            StreamReader sr = new StreamReader(pathout, false);
+
+            newId = i.ToString();
+            //Positions durchgehen               
+            for (int p = 0; p < _numJoints; p++)
             {
-                
-                _joints[j] = StringToVector3(sr.ReadLine());
-                //Debug.Log(_joints[j]+"joint");
+                newPos[p] = StringToVector3(sr.ReadLine());                
             }
-            poseList.Add(_joints);
+            //Rotations durchgehen
+            for (int r = 0; r < _numJoints; r++)
+            {
+                newRot[r] = StringToQuaternion(sr.ReadLine());
+
+            }
+            //Offset
+            newOff = StringToVector3(sr.ReadLine());
+            //Bones durchgehen
+            for (int bP = 0; bP < _numBones; bP++)
+            {
+                newPosB[bP] = StringToVector3(sr.ReadLine());
+            }
+            for (int bR = 0; bR < _numBones; bR++)
+            {
+                newRotB[bR] = StringToQuaternion(sr.ReadLine());
+            }
+            //add new pose to List
+            pose newPose = new pose(newId, newPos, newRot, newOff, newPosB, newRotB);
+            poseList.Add(newPose);            
             sr.Close();
             sr.Dispose();
         }       

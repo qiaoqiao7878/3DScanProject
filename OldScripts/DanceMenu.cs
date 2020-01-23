@@ -22,23 +22,18 @@ public class DanceMenu : MonoBehaviour
 
     //Modelobject for Targetpose
     public GameObject targetModel;
-    private int _numBones = 22; //Bones = Avatar Skeleton
-    protected Transform[] bonesTarget = new Transform[22];
-
-    //Kinect & Player stuff
-    private uint UserId;
-    private int _numJoints = 20;
-    private Vector3[] playerJoints = new Vector3[20];
-
-    private int _numAngles = 14;
+    protected Transform[] bones = new Transform[20];
 
     //Points Variables
     private int totalPoints = 0;
     public TextMeshProUGUI pointText;
+    private Vector3[] playerJoints = new Vector3[20];
+    private int _numJoints = 20; //22;
+    private uint UserId;
 
     //Variables for the target Poses
     //private ArrayList poseList;
-    public List<GlobalManager.pose> poseList;
+    public List<Vector3[]> poseList = new List<Vector3[]>();
     private int numPose;
     private int currentPose = -1;
 
@@ -55,15 +50,17 @@ public class DanceMenu : MonoBehaviour
 
     public void startDance()
     {
+        //GM.initializePoseList();
         totalPoints = 0;
         currentPose = -1;
+        UnityEngine.Debug.Log(poseList[0]);
         setPointText();
-
         bool next = makeNextPose();
         if (next)
         {
             started = true;
             startButton.interactable = false;
+
         }
         else
         {
@@ -81,17 +78,16 @@ public class DanceMenu : MonoBehaviour
 
     void Awake()
     {
+        UnityEngine.Debug.Log(poseList);
         //choose current Model according to gender
         changeGenderModel();
         //get the poseList
         poseList = GM.getPoseList();
+
         numPose = poseList.Count;
-        //bind the transformed of the Bones of the target Model
-        var animatorComponent = targetModel.GetComponentInChildren<Animator>();
-        for (int boneIndex = 0; boneIndex <_numBones; boneIndex++)
-        {
-            bonesTarget[boneIndex] = animatorComponent.GetBoneTransform(boneIndex2MecanimMap[boneIndex]);
-        }
+        UnityEngine.Debug.Log(numPose);
+        MapBones();
+
     }
 
     void Update()
@@ -105,8 +101,6 @@ public class DanceMenu : MonoBehaviour
 
             //compare with poseList[currentPose]
             bool match = compareAngles();
-
-            //TODO maybe compare jointRotations too
 
             if (match || Time.time - startTime >= roundTime) //Timer if you took too long to find the target pose
             {
@@ -125,6 +119,7 @@ public class DanceMenu : MonoBehaviour
                     startButton.interactable = true;
                     //Reload TargetModel Restpose
                     //TODO maybe we leaf it in last pose
+
                 }
             }
 
@@ -161,15 +156,56 @@ public class DanceMenu : MonoBehaviour
     }
 
     //Set the new Skeleton joint position of the avatar of the target model
-    void changeTargetModel(Vector3[] pos, Quaternion[] rot)
-    {        
-        //apply the new transform to avatar of the targetmodel
-        for(int i = 0; i < _numBones; i++)
-        {
-            //TODO check if this is working
-            bonesTarget[i].SetPositionAndRotation(pos[i], rot[i]);
+    void changeTargetModel( Vector3[] jointPos)
+    {
+        UnityEngine.Debug.Log("joint"+jointPos.Length);
+        UnityEngine.Debug.Log("bone" + bones.Length);
+        //TODO
+        //apply the new joint positions to avatar of the targetmodel
+        for (int i = 0; i < jointPos.Length; i++)
+        { if (bones[i] == null) {
+                UnityEngine.Debug.Log("fgfg");
+                UnityEngine.Debug.Log(i);
+                continue;
+            }
+            UnityEngine.Debug.Log(jointPos[i]);
+            bones[i].position = jointPos[i]; //dont know if this is right
+           
         }
-    }    
+    }
+
+    //From AvatarController
+    protected virtual void MapBones()
+    {
+        UnityEngine.Debug.Log("bone0" + bones.Length);
+        // get bone transforms from the animator component
+        var animatorComponent = targetModel.GetComponent<Animator>();
+        UnityEngine.Debug.Log("bone1" + bones.Length);
+        for (int boneIndex = 0; boneIndex < bones.Length; boneIndex++)
+        {
+            if (!boneIndex2MecanimMap.ContainsKey(boneIndex))
+                continue;
+
+            bones[boneIndex] = animatorComponent.GetBoneTransform(boneIndex2MecanimMap[boneIndex]);
+        }
+        UnityEngine.Debug.Log("bone2" + bones.Length);
+    }
+    protected Vector3 Kinect2AvatarPos(Vector3 jointPosition, bool bMoveVertically)
+    {
+        float xPos;
+        float yPos;
+        float zPos;
+
+        xPos = -jointPosition.x; //- xOffset;
+
+        yPos = jointPosition.y; //- yOffset;
+        zPos = -jointPosition.z;  //- zOffset;
+
+        // If we are tracking vertical movement, update the y. Otherwise leave it alone.
+        Vector3 avatarJointPos = new Vector3(xPos, bMoveVertically ? yPos : 0f, zPos);
+
+        return avatarJointPos;
+    }
 
     //choose next Pose in List, return false if List reached the end
     bool makeNextPose()
@@ -177,10 +213,17 @@ public class DanceMenu : MonoBehaviour
         currentPose++;
         if (currentPose < numPose)
         {
-            GlobalManager.pose newPose = poseList[currentPose];
-                        
-            changeTargetModel(newPose.bonesPos, newPose.bonesRot);
-            calculateTargetAngles(newPose.jointPos);
+
+            Vector3[] newPose = new Vector3[20];
+            newPose = poseList[currentPose];
+            for (int i = 0; i < 20 ; i++)
+            {
+                UnityEngine.Debug.Log(newPose[i] + "newpose");
+            }
+            
+            
+            changeTargetModel(newPose);
+            calculateTargetAngles(newPose);
             startTime = Time.time;
 
             return true;
@@ -194,7 +237,7 @@ public class DanceMenu : MonoBehaviour
     //calculate 14 angles of the Player from Kinect Data
     void calculatePlayerAngles(Vector3[] jointPos)
     {
-        
+        //TODO
         //calculate angles and store them in anglesPlayer
         anglesPlayer[0] = calAngle(ref jointPos, NuiSkeletonPositionIndex.Head, NuiSkeletonPositionIndex.ShoulderCenter, NuiSkeletonPositionIndex.ShoulderLeft);
         anglesPlayer[1] = calAngle(ref jointPos, NuiSkeletonPositionIndex.ShoulderCenter, NuiSkeletonPositionIndex.ShoulderLeft, NuiSkeletonPositionIndex.ElbowLeft);
@@ -215,7 +258,7 @@ public class DanceMenu : MonoBehaviour
     //calculate 14 angles of the Target of Vector3 array
     void calculateTargetAngles(Vector3[] jointPos)
     {
-        
+        //TODO
         //calculate angles and store them in anglesTarget
         anglesTarget[0] = calAngle(ref jointPos, NuiSkeletonPositionIndex.Head, NuiSkeletonPositionIndex.ShoulderCenter, NuiSkeletonPositionIndex.ShoulderLeft);
         anglesTarget[1] = calAngle(ref jointPos, NuiSkeletonPositionIndex.ShoulderCenter, NuiSkeletonPositionIndex.ShoulderLeft, NuiSkeletonPositionIndex.ElbowLeft);
@@ -247,32 +290,31 @@ public class DanceMenu : MonoBehaviour
         return Math.Acos(angle);
     }
 
-    //// time counter
-    //void timeCounter()
-    //{
-    //    Stopwatch stopwatch = new Stopwatch();
-    //    stopwatch.Start();
+    // time counter
+    void timeCounter()
+    {
+        Stopwatch stopwatch = new Stopwatch();
+        stopwatch.Start();
 
-    //    for (int i = 0; i < 500; i++)
-    //    {
-    //        System.Threading.Thread.Sleep(10);
-    //    }
+        for (int i = 0; i < 500; i++)
+        {
+            System.Threading.Thread.Sleep(10);
+        }
 
-    //    stopwatch.Stop();
+        stopwatch.Stop();
 
-    //}
+    }
     
 
 
     //compare anglesPlayer with anglesTarget, return true if the difference is under a threshold
-
     bool compareAngles()
     {
         //TODO
         double threshold = 20.0;
         double angleDiff = 0.0;
 
-        for (int i = 0; i < _numAngles; i++)
+        for (int i = 0; i < 14; i++)
         {
             angleDiff = anglesPlayer[i] - anglesTarget[i];
             if (angleDiff > threshold)
@@ -292,11 +334,6 @@ public class DanceMenu : MonoBehaviour
             if (manager.IsJointTracked(UserId, i))
             {
                 playerJoints[i] = manager.GetJointPosition(UserId, i);
-            }
-            else
-            {
-                //TODO if a joint isnt tracked
-                playerJoints[i] = new Vector3(0, 0, 0);
             }
         }
     }

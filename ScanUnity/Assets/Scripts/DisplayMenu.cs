@@ -13,13 +13,18 @@ public class DisplayMenu : MonoBehaviour
 {
     private KinectManager manager = KinectManager.Instance;
     protected GlobalManager GM = GlobalManager.instanceGM;
+
     private int numRecordtotal = 5;
     private int numRecord = 1;
     //Kinect Skeleton related stuff
-    private int _numJoints = 20; //22;
-    private Vector3[] _joints;
     private uint UserId;
-    
+    private int _numJoints = 20;
+    private int _numBones = 22;
+    private Vector3[] newPos;
+    private Quaternion[] newRot;
+    private Vector3 newOff;
+    private Vector3[] newPosB;
+    private Quaternion[] newRotB;
 
     //Modelobjects
     public GameObject femaleModel;
@@ -29,8 +34,6 @@ public class DisplayMenu : MonoBehaviour
     //PopUp Window variables
     public GameObject PopUpWindow;
     public TextMeshProUGUI popText;
-
-
 
     //Button-Functions--------------------------------------------------------
 
@@ -46,31 +49,44 @@ public class DisplayMenu : MonoBehaviour
         
         if (numRecord < numRecordtotal)
         {
-            
-            
+                   
             //write current point positions of Kinect Scan to a txt file
             string pathout = "Assets/Files/record_" + numRecord + ".txt";
 
-            _joints = new Vector3[_numJoints];
+            newPos = new Vector3[_numJoints];
+            newRot = new Quaternion[_numJoints];
+            newPosB = new Vector3[_numBones];
+            newRotB = new Quaternion[_numBones];
+
             getJointPosition();
+            getJointRotation();
+            getOffset();
+            getBonesTransform();                       
 
-           
-            //output jointposition to txt file
-
-            //if (true)
             if (IsAllJointTracked() == true)
             {
-                //set flase so it will generate a new file every time.
+                //set false so it will generate a new file every time.
                 StreamWriter sw = new StreamWriter(pathout, false);
                 
-                //sw.WriteLine("Recording...------------------------------------------");
-                for (int i = 0; i < _joints.Length; i++)
+                for (int i = 0; i < _numJoints; i++)
                 {
-                    sw.WriteLine(_joints[i]);
+                    sw.WriteLine(newPos[i]);
+                }
+                for (int i = 0; i < _numJoints; i++)
+                {
+                    sw.WriteLine(newRot[i]); //txt Format: (0,0, 0,0, 0,0, 1,0)
+                }
+                sw.WriteLine(newOff);
+                for (int i = 0; i < _numBones; i++)
+                {
+                    sw.WriteLine(newPosB);
+                }
+                for (int i = 0; i < _numBones; i++)
+                {
+                    sw.WriteLine(newRotB);
                 }
                 sw.Close();
                 sw.Dispose();
-
                
                 displayPopUp( numRecord + "Pose,"+ (numRecordtotal-numRecord) + "Poses left.");
                 numRecord += 1;
@@ -80,84 +96,19 @@ public class DisplayMenu : MonoBehaviour
                 displayPopUp("Some joints are missing!!!\nPlease find more suitable place!!!");
             }
 
-            //// TODO: where to store the angles' information
-            //// calculate angles for joints
-            //double[] angles = posAngle(ref _joints);
         }
-
-        else {
+        else
+        {
             displayPopUp("Record ending! Go to the dancing part");
-        }
-        
-        
+        }     
 
-    }
-
-    //// TODO: we have to ensure the sequence of NuiSkeletonPositionIndex is the same as sequence in _joint
-    //public static double calAngle(ref Vector3[] jointsPos, NuiSkeletonPositionIndex n1, NuiSkeletonPositionIndex n2, NuiSkeletonPositionIndex n3)
-    //{
-    //    Vector3 j1 = jointsPos[(int)n1];
-    //    Vector3 j2 = jointsPos[(int)n2];
-    //    Vector3 j3 = jointsPos[(int)n3];
-        
-    //    double link1 = Math.Sqrt(Math.Pow(j1.x - j2.x, 2) + Math.Pow(j1.y - j2.y, 2) + Math.Pow(j1.z - j2.z, 2));
-    //    double link2 = Math.Sqrt(Math.Pow(j3.x - j2.x, 2) + Math.Pow(j3.y - j2.y, 2) + Math.Pow(j3.z - j2.z, 2));
-    //    double dot = Vector3.Dot((j1 - j2), (j3 - j2));
-    //    double angle = dot / (link1 * link2);
-    //    return Math.Acos(angle);
-    //}
-
-    //// calculate model's angle
-    //public static double[] posAngle(ref Vector3[] jointPos)
-    //{
-    //    double[] points = new double[14];
-    //    points[0] = calAngle(ref jointPos, NuiSkeletonPositionIndex.Head, NuiSkeletonPositionIndex.ShoulderCenter, NuiSkeletonPositionIndex.ShoulderLeft);
-    //    points[1] = calAngle(ref jointPos, NuiSkeletonPositionIndex.ShoulderCenter, NuiSkeletonPositionIndex.ShoulderLeft, NuiSkeletonPositionIndex.ElbowLeft);
-    //    points[2] = calAngle(ref jointPos, NuiSkeletonPositionIndex.ShoulderLeft, NuiSkeletonPositionIndex.ElbowLeft, NuiSkeletonPositionIndex.WristLeft);
-    //    points[3] = calAngle(ref jointPos, NuiSkeletonPositionIndex.ElbowLeft, NuiSkeletonPositionIndex.WristLeft, NuiSkeletonPositionIndex.HandLeft);
-    //    points[4] = calAngle(ref jointPos, NuiSkeletonPositionIndex.HipCenter, NuiSkeletonPositionIndex.HipLeft, NuiSkeletonPositionIndex.KneeLeft);
-    //    points[5] = calAngle(ref jointPos, NuiSkeletonPositionIndex.HipLeft, NuiSkeletonPositionIndex.KneeLeft, NuiSkeletonPositionIndex.AnkleLeft);
-    //    points[6] = calAngle(ref jointPos, NuiSkeletonPositionIndex.KneeLeft, NuiSkeletonPositionIndex.AnkleLeft, NuiSkeletonPositionIndex.FootLeft);
-    //    points[7] = calAngle(ref jointPos, NuiSkeletonPositionIndex.Head, NuiSkeletonPositionIndex.ShoulderCenter, NuiSkeletonPositionIndex.ShoulderRight);
-    //    points[8] = calAngle(ref jointPos, NuiSkeletonPositionIndex.ShoulderCenter, NuiSkeletonPositionIndex.ShoulderRight, NuiSkeletonPositionIndex.ElbowRight);
-    //    points[9] = calAngle(ref jointPos, NuiSkeletonPositionIndex.ShoulderRight, NuiSkeletonPositionIndex.ElbowRight, NuiSkeletonPositionIndex.WristRight);
-    //    points[10] = calAngle(ref jointPos, NuiSkeletonPositionIndex.ElbowRight, NuiSkeletonPositionIndex.WristRight, NuiSkeletonPositionIndex.HandRight);
-    //    points[11] = calAngle(ref jointPos, NuiSkeletonPositionIndex.HipCenter, NuiSkeletonPositionIndex.HipRight, NuiSkeletonPositionIndex.KneeRight);
-    //    points[12] = calAngle(ref jointPos, NuiSkeletonPositionIndex.HipRight, NuiSkeletonPositionIndex.KneeRight, NuiSkeletonPositionIndex.AnkleRight);
-    //    points[13] = calAngle(ref jointPos, NuiSkeletonPositionIndex.KneeRight, NuiSkeletonPositionIndex.AnkleRight, NuiSkeletonPositionIndex.FootRight);
-
-    //    return points;
-    //}
-
-    //public enum NuiSkeletonPositionIndex : int
-    //{
-    //    HipCenter = 0,
-    //    Spine = 1,
-    //    ShoulderCenter = 2,
-    //    Head = 3,
-    //    ShoulderLeft = 4,
-    //    ElbowLeft = 5,
-    //    WristLeft = 6,
-    //    HandLeft = 7,
-    //    ShoulderRight = 8,
-    //    ElbowRight = 9,
-    //    WristRight = 10,
-    //    HandRight = 11,
-    //    HipLeft = 12,
-    //    KneeLeft = 13,
-    //    AnkleLeft = 14,
-    //    FootLeft = 15,
-    //    HipRight = 16,
-    //    KneeRight = 17,
-    //    AnkleRight = 18,
-    //    FootRight = 19,
-    //}
+    }     
 
     //------------------------------------------------------------------------
 
     void Awake()
     {
-        //numRecord = GM.numRecord;
+        UserId = manager.GetPlayer1ID();
         //choose current Model according to gender
         changeGenderModel();
         numRecord = 1;
@@ -177,20 +128,46 @@ public class DisplayMenu : MonoBehaviour
             maleModel.SetActive(true);
         }
     }
+
     //get current joint position and store them in _joints
     void getJointPosition()
     {
-        UserId = manager.GetPlayer1ID();
+        
         for (int i = 0; i < _numJoints; i++)
         {
             if (manager.IsJointTracked(UserId, i))
             {
-                _joints[i] = manager.GetJointPosition(UserId, i); //-manager.GetUserPosition(UserID);
+                newPos[i] = manager.GetJointPosition(UserId, i);
             }
         }
     }
-        
-    
+
+    void getJointRotation()
+    {
+        for (int i = 0; i < _numJoints; i++)
+        {
+            if (manager.IsJointTracked(UserId, i))
+            {
+                newRot[i] = manager.GetJointOrientation(UserId, i, false);
+            }
+        }
+    }
+
+    void getOffset()
+    {
+        newOff = manager.GetUserPosition(UserId);    
+    }
+
+    void getBonesTransform()
+    {
+        var animatorComponent = currentModel.GetComponentInChildren<Animator>();
+        for (int i = 0; i < _numBones; i++)
+        {            
+            Transform newT = animatorComponent.GetBoneTransform(boneIndex2MecanimMap[i]);
+            newPosB[i] = newT.position;
+            newRotB[i] = newT.rotation;
+        }
+    }
 
     bool IsAllJointTracked() {
         for (int i = 0; i < _numJoints; i++)
@@ -202,6 +179,7 @@ public class DisplayMenu : MonoBehaviour
         }
         return true;
     }
+
     //Display the popUp with message
     public void displayPopUp(string msg)
     {
@@ -214,4 +192,34 @@ public class DisplayMenu : MonoBehaviour
     {
         PopUpWindow.SetActive(false);
     }
+
+    private readonly Dictionary<int, HumanBodyBones> boneIndex2MecanimMap = new Dictionary<int, HumanBodyBones>
+    {
+        {0, HumanBodyBones.Hips},
+        {1, HumanBodyBones.Spine},
+        {2, HumanBodyBones.Neck},
+        {3, HumanBodyBones.Head},
+
+        {4, HumanBodyBones.LeftShoulder},
+        {5, HumanBodyBones.LeftUpperArm},
+        {6, HumanBodyBones.LeftLowerArm},
+        {7, HumanBodyBones.LeftHand},
+        {8, HumanBodyBones.LeftIndexProximal},
+
+        {9, HumanBodyBones.RightShoulder},
+        {10, HumanBodyBones.RightUpperArm},
+        {11, HumanBodyBones.RightLowerArm},
+        {12, HumanBodyBones.RightHand},
+        {13, HumanBodyBones.RightIndexProximal},
+
+        {14, HumanBodyBones.LeftUpperLeg},
+        {15, HumanBodyBones.LeftLowerLeg},
+        {16, HumanBodyBones.LeftFoot},
+        {17, HumanBodyBones.LeftToes},
+
+        {18, HumanBodyBones.RightUpperLeg},
+        {19, HumanBodyBones.RightLowerLeg},
+        {20, HumanBodyBones.RightFoot},
+        {21, HumanBodyBones.RightToes},
+    };
 }
