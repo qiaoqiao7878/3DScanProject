@@ -14,7 +14,7 @@ public class DanceMenu : MonoBehaviour
 {
 
     protected GlobalManager GM = GlobalManager.instanceGM;
-
+    
     //ModelObjects of player
     public GameObject femaleModel;
     public GameObject maleModel;
@@ -280,6 +280,7 @@ public class DanceMenu : MonoBehaviour
         stopwatch.Stop();
 
     }
+    
 
 
     //compare anglesPlayer with anglesTarget, return true if the difference is under a threshold
