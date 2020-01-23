@@ -14,7 +14,8 @@ public class DanceMenu : MonoBehaviour
 {
 
     protected GlobalManager GM = GlobalManager.instanceGM;
-    
+    private KinectManager manager = KinectManager.Instance;
+
     //ModelObjects of player
     public GameObject femaleModel;
     public GameObject maleModel;
@@ -26,6 +27,9 @@ public class DanceMenu : MonoBehaviour
     //Points Variables
     private int totalPoints = 0;
     public TextMeshProUGUI pointText;
+    private Vector3[] playerJoints = new Vector3[20];
+    private int _numJoints = 20; //22;
+    private uint UserId;
 
     //Variables for the target Poses
     //private ArrayList poseList;
@@ -91,7 +95,8 @@ public class DanceMenu : MonoBehaviour
         if (started)
         {
             //calculate 14 angles
-            calculatePlayerAngles();
+            getJointPosition();
+            calculatePlayerAngles(playerJoints);
 
             //compare with poseList[currentPose]
             bool match = compareAngles();
@@ -299,6 +304,19 @@ public class DanceMenu : MonoBehaviour
             }
         }
         return true;
+    }
+
+    //get current joint position and store them in _joints
+    void getJointPosition()
+    {
+        UserId = manager.GetPlayer1ID();
+        for (int i = 0; i < _numJoints; i++)
+        {
+            if (manager.IsJointTracked(UserId, i))
+            {
+                playerJoints[i] = manager.GetJointPosition(UserId, i);
+            }
+        }
     }
 
 
