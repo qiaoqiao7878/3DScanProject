@@ -49,7 +49,7 @@ public class DanceMenu : MonoBehaviour
         //GM.initializePoseList();
         totalPoints = 0;
         currentPose = -1;
-        Debug.Log(poseList[0]);
+        UnityEngine.Debug.Log(poseList[0]);
         setPointText();
         bool next = makeNextPose();
         if (next)
@@ -60,7 +60,7 @@ public class DanceMenu : MonoBehaviour
         }
         else
         {
-            Debug.Log("PoseList is empty!!");
+            UnityEngine.Debug.Log("PoseList is empty!!");
         }
 
     }
@@ -108,7 +108,7 @@ public class DanceMenu : MonoBehaviour
                 bool next = makeNextPose();
                 if (!next)
                 {
-                    Debug.Log("All Poses matched!");
+                    UnityEngine.Debug.Log("All Poses matched!");
                     started = false;
                     startButton.interactable = true;
                     //Reload TargetModel Restpose
