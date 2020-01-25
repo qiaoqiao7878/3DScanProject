@@ -163,11 +163,20 @@ public class DanceMenu : MonoBehaviour
     //Set the new Skeleton joint position of the avatar of the target model
     void changeTargetModel(Vector3[] pos, Quaternion[] rot)
     {        
+
         //apply the new transform to avatar of the targetmodel
         for(int i = 0; i < _numBones; i++)
         {
+            
             //TODO check if this is working
-            bonesTarget[i].SetPositionAndRotation(pos[i], rot[i]);
+            if (bonesTarget[i]!= null)
+            {
+                UnityEngine.Debug.Log("P" + pos[i]);
+                UnityEngine.Debug.Log("R" + rot[i]);
+
+                bonesTarget[i].SetPositionAndRotation(pos[i], rot[i]);
+            }
+                
             //or
             //bonesTarget[i].position = pos[i];
             //bonesTarget[i].rotation = rot[i];
@@ -185,7 +194,7 @@ public class DanceMenu : MonoBehaviour
         if (currentPose < numPose)
         {
             GlobalManager.pose newPose = poseList[currentPose];
-                        
+            
             changeTargetModel(newPose.bonesPos, newPose.bonesRot);
             calculateTargetAngles(newPose.jointPos);
             startTime = Time.time;
