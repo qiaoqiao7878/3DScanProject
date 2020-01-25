@@ -2101,6 +2101,11 @@ PrefabInstance:
       propertyPath: m_Name
       value: FemaleModel
       objectReference: {fileID: 0}
+    - target: {fileID: 5055122484407692986, guid: bd5fbe4ec89511a45b4c59533a097ad2,
+        type: 3}
+      propertyPath: m_ApplyRootMotion
+      value: 1
+      objectReference: {fileID: 0}
     m_RemovedComponents: []
   m_SourcePrefab: {fileID: 100100000, guid: bd5fbe4ec89511a45b4c59533a097ad2, type: 3}
 --- !u!1 &5055122484178940517 stripped

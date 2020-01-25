@@ -11,6 +11,8 @@ using System;
 //Script for Display Scene
 public class DisplayMenu : MonoBehaviour
 {
+    protected Transform[] newT;
+
     private KinectManager manager = KinectManager.Instance;
     protected GlobalManager GM = GlobalManager.instanceGM;
 
@@ -36,6 +38,17 @@ public class DisplayMenu : MonoBehaviour
     public TextMeshProUGUI popText;
 
     //Button-Functions--------------------------------------------------------
+    private Transform _transformCache;
+    public new Transform transform
+    {
+        get
+        {
+            if (!_transformCache)
+                _transformCache = base.transform;
+
+            return _transformCache;
+        }
+    }
 
     //go back to MainMenu
     public void back()
@@ -53,8 +66,7 @@ public class DisplayMenu : MonoBehaviour
             //write current point positions of Kinect Scan to a txt file
             string pathout = "Assets/Files/record_" + numRecord + ".txt";
 
-            newPos = new Vector3[_numJoints];
-            newRot = new Quaternion[_numJoints];
+            
             newPosB = new Vector3[_numBones];
             newRotB = new Quaternion[_numBones];
 
@@ -64,6 +76,7 @@ public class DisplayMenu : MonoBehaviour
             getBonesTransform();                       
 
             if (IsAllJointTracked() == true)
+            //if (true)
             {
                 //set false so it will generate a new file every time.
                 StreamWriter sw = new StreamWriter(pathout, false);
@@ -79,11 +92,11 @@ public class DisplayMenu : MonoBehaviour
                 sw.WriteLine(newOff);
                 for (int i = 0; i < _numBones; i++)
                 {
-                    sw.WriteLine(newPosB);
+                    sw.WriteLine(newPosB[i]);
                 }
                 for (int i = 0; i < _numBones; i++)
                 {
-                    sw.WriteLine(newRotB);
+                    sw.WriteLine(newRotB[i]);
                 }
                 sw.Close();
                 sw.Dispose();
@@ -112,6 +125,8 @@ public class DisplayMenu : MonoBehaviour
         //choose current Model according to gender
         changeGenderModel();
         numRecord = 1;
+        newPos = new Vector3[_numJoints];
+        newRot = new Quaternion[_numJoints];
     }
 
     //Activate the model according to gender
@@ -119,13 +134,17 @@ public class DisplayMenu : MonoBehaviour
     {
         if (GM.getGender() == "female")
         {
+           
             femaleModel.SetActive(true);
-            maleModel.SetActive(false);            
+            maleModel.SetActive(false);
+            currentModel = femaleModel;
         }
         else
         {
+            
             femaleModel.SetActive(false);
             maleModel.SetActive(true);
+            currentModel = maleModel;
         }
     }
 
@@ -160,12 +179,22 @@ public class DisplayMenu : MonoBehaviour
 
     void getBonesTransform()
     {
-        var animatorComponent = currentModel.GetComponentInChildren<Animator>();
+        newT = new Transform[1];
+        //var animatorComponent = currentModel.GetComponent<Animator>();
+        var animatorComponent = currentModel.GetComponentsInChildren<Animator>();
+        Debug.Log(animatorComponent[0]);
         for (int i = 0; i < _numBones; i++)
-        {            
-            Transform newT = animatorComponent.GetBoneTransform(boneIndex2MecanimMap[i]);
-            newPosB[i] = newT.position;
-            newRotB[i] = newT.rotation;
+        {
+            if (!boneIndex2MecanimMap.ContainsKey(i))
+                continue;
+
+            newT[0] = animatorComponent[0].GetBoneTransform(boneIndex2MecanimMap[i]);
+            Debug.Log(newT[0]);
+            if (newT[0] != null)
+            {
+                newPosB[i] = newT[0].position;
+                newRotB[i] = newT[0].rotation;
+            }
         }
     }
 
