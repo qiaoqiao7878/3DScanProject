@@ -168,6 +168,13 @@ public class DanceMenu : MonoBehaviour
         {
             //TODO check if this is working
             bonesTarget[i].SetPositionAndRotation(pos[i], rot[i]);
+            //or
+            //bonesTarget[i].position = pos[i];
+            //bonesTarget[i].rotation = rot[i];
+            //or
+            //bonesTarget[i].localPosition = pos[i];
+            //bonesTarget[i].localRotation = rot[i];
+
         }
     }    
 

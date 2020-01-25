@@ -791,7 +791,8 @@ PrefabInstance:
       propertyPath: shapeParmsJSON
       value: 
       objectReference: {fileID: 0}
-    m_RemovedComponents: []
+    m_RemovedComponents:
+    - {fileID: 5055122484414978980, guid: bd5fbe4ec89511a45b4c59533a097ad2, type: 3}
   m_SourcePrefab: {fileID: 100100000, guid: bd5fbe4ec89511a45b4c59533a097ad2, type: 3}
 --- !u!1 &840633607 stripped
 GameObject:

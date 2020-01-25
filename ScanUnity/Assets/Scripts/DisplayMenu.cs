@@ -192,8 +192,12 @@ public class DisplayMenu : MonoBehaviour
             Debug.Log(newT[0]);
             if (newT[0] != null)
             {
-                newPosB[i] = newT[0].position;
-                newRotB[i] = newT[0].rotation;
+                //TODO
+                newPosB[i] = newT[0].position; //position or localPosition ??
+                newRotB[i] = newT[0].rotation; //rotation or localRotation ??
+                //or
+                //newPosB[i] = newT[0].localPosition; 
+                //newRotB[i] = newT[0].localRotation;
             }
         }
     }

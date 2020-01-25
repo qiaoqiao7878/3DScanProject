@@ -13,7 +13,7 @@ public class GlobalManager : MonoBehaviour
     
     private static string genderGM = "female";   //global Gender
 
-    private int numRecord = 1; //5          change!
+    private int numRecord = 5; //5          change!
 
     private List<pose> poseList = new List<pose>();  //contains the target poses for the dancing
 
@@ -115,7 +115,7 @@ public class GlobalManager : MonoBehaviour
             float.Parse(sArray[0]),
             float.Parse(sArray[1]),
             float.Parse(sArray[2]),
-            1.0f                            //float.Parse(sArray[3])   change!
+            float.Parse(sArray[3])   //change!
             );
         return result;        
     }
