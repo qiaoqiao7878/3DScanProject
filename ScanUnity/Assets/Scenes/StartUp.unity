@@ -491,7 +491,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: d626925d0acec1640a9aca92355bec43, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  numRecord: 5
 --- !u!4 &564811909
 Transform:
   m_ObjectHideFlags: 0
@@ -649,8 +648,8 @@ MonoBehaviour:
   DetectClosestUser: 1
   IgnoreInferredJoints: 1
   smoothing: 1
-  UseBoneOrientationsFilter: 0
-  UseClippedLegsFilter: 0
+  UseBoneOrientationsFilter: 1
+  UseClippedLegsFilter: 1
   UseBoneOrientationsConstraint: 1
   UseSelfIntersectionConstraint: 0
   Player1Avatars: []

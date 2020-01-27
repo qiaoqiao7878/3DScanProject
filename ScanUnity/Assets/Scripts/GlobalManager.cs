@@ -13,7 +13,7 @@ public class GlobalManager : MonoBehaviour
     
     private static string genderGM = "female";   //global Gender
 
-    private int numRecord = 5; //5          change!
+    private int numRecord = 4; //5          change!
 
     private List<pose> poseList = new List<pose>();  //contains the target poses for the dancing
 
@@ -123,15 +123,16 @@ public class GlobalManager : MonoBehaviour
     //Read the pose files and store it in the poseList 
     public void initializePoseList()
     {
-        string newId;
-        Vector3[] newPos = new Vector3[_numJoints];
-        Quaternion[] newRot = new Quaternion[_numJoints];
-        Vector3 newOff;
-        Vector3[] newPosB = new Vector3[_numBones];
-        Quaternion[] newRotB = new Quaternion[_numBones];
+        
 
         for (int i = 1; i <= numRecord; i++)
-        {            
+        {
+            string newId;
+            Vector3[] newPos = new Vector3[_numJoints];
+            Quaternion[] newRot = new Quaternion[_numJoints];
+            Vector3 newOff;
+            Vector3[] newPosB = new Vector3[_numBones];
+            Quaternion[] newRotB = new Quaternion[_numBones];
             string pathout = "Assets/Files/record_" + i + ".txt";
             //set false so it will generate a new file every time.
             StreamReader sr = new StreamReader(pathout, false);

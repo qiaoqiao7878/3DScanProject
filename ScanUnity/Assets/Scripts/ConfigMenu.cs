@@ -121,6 +121,7 @@ public class ConfigMenu : MonoBehaviour
             GM.setGender("female");
         }
         changeGenderModel();
+        SceneManager.LoadScene(2);
     }
 
     //turn the model clockwise by 20°
@@ -181,6 +182,7 @@ public class ConfigMenu : MonoBehaviour
             maleModel.SetActive(true);
             currentModel = maleModel;
         }
+        
     }
 
     //get current joint position and store them in _joints

@@ -193,11 +193,11 @@ public class DisplayMenu : MonoBehaviour
             if (newT[0] != null)
             {
                 //TODO
-                newPosB[i] = newT[0].position; //position or localPosition ??
-                newRotB[i] = newT[0].rotation; //rotation or localRotation ??
+                //newPosB[i] = newT[0].position; //position or localPosition ??
+                //newRotB[i] = newT[0].rotation; //rotation or localRotation ??
                 //or
-                //newPosB[i] = newT[0].localPosition; 
-                //newRotB[i] = newT[0].localRotation;
+                newPosB[i] = newT[0].localPosition; 
+                newRotB[i] = newT[0].localRotation;
             }
         }
     }

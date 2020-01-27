@@ -105,9 +105,9 @@ public class DanceMenu : MonoBehaviour
 
             //compare with poseList[currentPose]
             bool match = compareAngles();
-
+            //bool match = false;
             //TODO maybe compare jointRotations too
-
+            //UnityEngine.Debug.Log(Time.time - startTime);
             if (match || Time.time - startTime >= roundTime) //Timer if you took too long to find the target pose
             {
                 if (match)
@@ -171,12 +171,13 @@ public class DanceMenu : MonoBehaviour
             //TODO check if this is working
             if (bonesTarget[i]!= null)
             {
-                UnityEngine.Debug.Log("P" + pos[i]);
-                UnityEngine.Debug.Log("R" + rot[i]);
-
-                bonesTarget[i].SetPositionAndRotation(pos[i], rot[i]);
-            }
+                //bonesTarget[i].SetPositionAndRotation(pos[i], rot[i]);
                 
+                bonesTarget[i].localPosition = pos[i];
+                bonesTarget[i].localRotation = rot[i];
+
+            }
+
             //or
             //bonesTarget[i].position = pos[i];
             //bonesTarget[i].rotation = rot[i];
@@ -191,11 +192,16 @@ public class DanceMenu : MonoBehaviour
     bool makeNextPose()
     {
         currentPose++;
+        
         if (currentPose < numPose)
         {
+            //UnityEngine.Debug.Log("current Pose" + currentPose);
+
             GlobalManager.pose newPose = poseList[currentPose];
-            
+
+            UnityEngine.Debug.Log("PoseName: " + newPose.id);
             changeTargetModel(newPose.bonesPos, newPose.bonesRot);
+            UnityEngine.Debug.Log("bonesPos: " + newPose.bonesRot[0] );
             calculateTargetAngles(newPose.jointPos);
             startTime = Time.time;
 
@@ -285,12 +291,13 @@ public class DanceMenu : MonoBehaviour
     bool compareAngles()
     {
         //TODO
-        double threshold = 20.0;
+        double threshold = 0.5;
         double angleDiff = 0.0;
 
         for (int i = 0; i < _numAngles; i++)
         {
-            angleDiff = anglesPlayer[i] - anglesTarget[i];
+            angleDiff = Math.Abs(anglesPlayer[i] - anglesTarget[i]);
+            UnityEngine.Debug.Log(angleDiff);
             if (angleDiff > threshold)
             {
                 return false;

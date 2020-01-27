@@ -56,7 +56,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 21d009565a343ca46888bb2b74c7ef3d, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  mirroredMovement: 0
+  mirroredMovement: 1
   verticalMovement: 0
   smoothFactor: 5
   offsetRelativeToSensor: 0
@@ -141,6 +141,10 @@ PrefabInstance:
     - target: {fileID: 400052, guid: 51655003bc8d72345b933535ebd609fc, type: 3}
       propertyPath: m_LocalScale.z
       value: 4
+      objectReference: {fileID: 0}
+    - target: {fileID: 9500000, guid: 51655003bc8d72345b933535ebd609fc, type: 3}
+      propertyPath: m_ApplyRootMotion
+      value: 1
       objectReference: {fileID: 0}
     - target: {fileID: 13700000, guid: 51655003bc8d72345b933535ebd609fc, type: 3}
       propertyPath: m_BlendShapeWeights.Array.size
