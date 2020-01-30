@@ -245,6 +245,7 @@ public class ConfigMenu : MonoBehaviour
             torso_height += Length(ref jointsPos, NuiSkeletonPositionIndex.ShoulderCenter, NuiSkeletonPositionIndex.Spine);
             torso_height += Length(ref jointsPos, NuiSkeletonPositionIndex.Spine, NuiSkeletonPositionIndex.HipCenter);
             torso_height += Lengthwithvector(ref jointsPos, NuiSkeletonPositionIndex.HipCenter, Average(ref jointsPos, NuiSkeletonPositionIndex.HipRight, NuiSkeletonPositionIndex.HipLeft));
+            torso_height += 0.15;
 
             double left_leg_height = 0;
             left_leg_height = Length(ref jointsPos, NuiSkeletonPositionIndex.HipLeft, NuiSkeletonPositionIndex.KneeLeft);
@@ -270,7 +271,15 @@ public class ConfigMenu : MonoBehaviour
     public static double calBodyweight(ref Vector3[] jointsPos)
     {
         double weightValue = 0;
-        weightValue = Length(ref jointsPos, NuiSkeletonPositionIndex.ElbowLeft, NuiSkeletonPositionIndex.ElbowRight);
+        if (manager.IsJointTracked(UserId, (int)NuiSkeletonPositionIndex.ElbowLeft) && manager.IsJointTracked(UserId,
+            (int)NuiSkeletonPositionIndex.ElbowRight)){
+            weightValue = Length(ref jointsPos, NuiSkeletonPositionIndex.ElbowLeft, NuiSkeletonPositionIndex.ElbowRight);
+        }
+        else
+        {
+            Debug.Log("I just cannot find you!");
+            return 0.0;
+        }
         return weightValue;
     }   
 
