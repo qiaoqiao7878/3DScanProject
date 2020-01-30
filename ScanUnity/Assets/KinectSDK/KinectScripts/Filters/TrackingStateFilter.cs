@@ -34,6 +34,13 @@ public class TrackingStateFilter
     //private double dt = 0.001f;
     //public float a = 0;    // accelerate has to be changed
 
+    private double[] F = new double[4];
+    // Control-input model
+    private double[] B = new double[2];
+
+    private double dt = 0.001f;
+    public float a = 1;    // accelerate has to be changed
+	
     /// Initializes a new instance of the class.
     public TrackingStateFilter()
     {
@@ -116,6 +123,8 @@ public class TrackingStateFilter
         float diffVal;
         //double velocity;
 
+        double velocity;
+        
         float rawState = (float)skeleton.eSkeletonPositionTrackingState[jointIndex];
         float prevFilteredState = history[jointIndex].FilteredState;
         float prevTrend = history[jointIndex].Trend;
@@ -132,6 +141,18 @@ public class TrackingStateFilter
        // B[0] = 0.5 * dt * dt;
        // B[1] = dt;
 
+        float prevVelocity = history[jointIndex].Velocity;
+        //double[] m_p = history[jointIndex].m_p;
+        //double[] m_q = history[jointIndex].m_q;
+        //double m_r = history[jointIndex].m_r;
+        
+        F[0] = 1;
+        F[1] = dt;
+        F[2] = 0;
+        F[3] = 1;
+        B[0] = 0.5 * dt * dt;
+        B[1] = dt;
+        
         // If joint is invalid, reset the filter
         if (rawState == 0f)
         {
@@ -145,12 +166,14 @@ public class TrackingStateFilter
             filteredState = rawState;
             trend = 0f;
             //velocity = 1;
+            velocity = 1;
 
         }
         else if (this.history[jointIndex].FrameCount == 1)
         {
             filteredState = (rawState + prevRawState) * 0.5f;
             //velocity = (filteredState - prevFilteredState) / dt;
+            velocity = (filteredState - prevFilteredState) / dt;
             diffVal = filteredState - prevFilteredState;
             trend = (diffVal * smoothingParameters.fCorrection) + (prevTrend * (1.0f - smoothingParameters.fCorrection));
         }
@@ -185,6 +208,20 @@ public class TrackingStateFilter
         // Predict into the future to reduce latency
          float predictedState = filteredState + (trend * smoothingParameters.fPrediction);
         // float predictedState = filteredState + (float)velocity;
+            filteredState = (float)F[0] * prevFilteredState + (float)F[2] * prevFilteredState - (float)B[0] * a;
+            velocity = (float)F[1] * prevVelocity + (float)F[3] * prevVelocity - (float)B[1] * a;
+
+            // Now the double exponential smoothing filter
+            // filteredState = (filteredState * (1.0f - smoothingParameters.fSmoothing)) + ((prevFilteredState + prevTrend) * smoothingParameters.fSmoothing);
+
+            // diffVal = filteredState - prevFilteredState;
+            // trend = (diffVal * smoothingParameters.fCorrection) + (prevTrend * (1.0f - smoothingParameters.fCorrection));
+            trend = 0f;
+        }
+
+        // Predict into the future to reduce latency
+        // float predictedState = filteredState + (trend * smoothingParameters.fPrediction);
+        float predictedState = filteredState + (float)velocity;
 
         // Check that we are not too far away from raw data
         diffVal = predictedState - rawState;
@@ -201,6 +238,8 @@ public class TrackingStateFilter
         history[jointIndex].FrameCount++;
         //history[jointIndex].Velocity = (float)velocity;
 
+        history[jointIndex].Velocity = (float)velocity;
+        
         // Set the filtered data back into the joint
         skeleton.eSkeletonPositionTrackingState[jointIndex] = (KinectWrapper.NuiSkeletonPositionTrackingState)(predictedState + 0.5f);
     }
@@ -212,6 +251,13 @@ public class TrackingStateFilter
         return coefficient * exponential;
     }
 
+    private double Gaussian(double mu, double sigma, double x)
+    {
+        double coefficient = 1.0 / Math.Sqrt(2.0 * Math.PI * sigma);
+        double exponential = Math.Exp(-1 * (x - mu) * (x - mu) / (2 * sigma));
+        return coefficient * exponential;
+    }
+	
 
     // Historical Filter Data.  
     private struct FilterDoubleExponentialData
@@ -229,7 +275,10 @@ public class TrackingStateFilter
         public uint FrameCount;
 
         // Gets or sets Velocity
+
         //public float Velocity;
+
+        public float Velocity;
 
         //// Gets or sets Covariance
         //public double[] m_p;
