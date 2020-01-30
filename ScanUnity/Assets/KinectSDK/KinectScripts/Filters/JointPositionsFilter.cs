@@ -1,4 +1,4 @@
-﻿//------------------------------------------------------------------------------
+﻿/------------------------------------------------------------------------------
 // <copyright file="SkeletonJointsPositionDoubleExponentialFilter.cs" company="Microsoft">
 //     Copyright (c) Microsoft Corporation.  All rights reserved.
 // </copyright>
@@ -16,6 +16,10 @@ using System.Collections.Generic;
 /// smooths the curve and predicts.  There is also noise jitter removal. And maximum
 /// prediction bounds.  The parameters are commented in the Init function.
 /// </summary>
+///
+
+// Adding predictedposition
+// Adding single exponential filter, double exponential filter
 public class JointPositionsFilter
 {
     // The history data.
@@ -26,8 +30,12 @@ public class JointPositionsFilter
 
     // True when the filter parameters are initialized.
     private bool init;
-	
-	
+
+    // modify
+    // choose filter type
+    private int filterType = 1;
+
+
     /// Initializes a new instance of the class.
     public JointPositionsFilter()
     {
@@ -39,7 +47,7 @@ public class JointPositionsFilter
     {
         // Specify some defaults
         //this.Init(0.25f, 0.25f, 0.25f, 0.03f, 0.05f);
-		this.Init(0.5f, 0.5f, 0.5f, 0.05f, 0.04f);
+        this.Init(0.5f, 0.5f, 0.5f, 0.05f, 0.04f);
     }
 
     /// <summary>
@@ -59,8 +67,7 @@ public class JointPositionsFilter
         this.smoothParameters.fPrediction = predictionValue;                 // Amount of prediction into the future to use. Can over shoot when too high
         this.smoothParameters.fJitterRadius = jitterRadiusValue;             // Size of the radius where jitter is removed. Can do too much smoothing when too high
         this.smoothParameters.fMaxDeviationRadius = maxDeviationRadiusValue; // Size of the max prediction radius Can snap back to noisy data when too high
-        
-		this.Reset();
+        this.Reset();
         this.init = true;
     }
 
@@ -68,7 +75,7 @@ public class JointPositionsFilter
     public void Init(KinectWrapper.NuiTransformSmoothParameters smoothingParameters)
     {
         this.smoothParameters = smoothingParameters;
-		
+
         this.Reset();
         this.init = true;
     }
@@ -82,10 +89,10 @@ public class JointPositionsFilter
     // Update the filter with a new frame of data and smooth.
     public void UpdateFilter(ref KinectWrapper.NuiSkeletonData skeleton)
     {
-//        if (null == skeleton)
-//        {
-//            return;
-//        }
+        //        if (null == skeleton)
+        //        {
+        //            return;
+        //        }
 
         if (skeleton.eTrackingState != KinectWrapper.NuiSkeletonTrackingState.SkeletonTracked)
         {
@@ -107,12 +114,12 @@ public class JointPositionsFilter
         tempSmoothingParams.fSmoothing = smoothParameters.fSmoothing;
         tempSmoothingParams.fCorrection = smoothParameters.fCorrection;
         tempSmoothingParams.fPrediction = smoothParameters.fPrediction;
-		
-		int jointsCount = (int)KinectWrapper.NuiSkeletonPositionIndex.Count;
-        for(int jointIndex = 0; jointIndex < jointsCount; jointIndex++)
+
+        int jointsCount = (int)KinectWrapper.NuiSkeletonPositionIndex.Count;
+        for (int jointIndex = 0; jointIndex < jointsCount; jointIndex++)
         {
-			//KinectWrapper.NuiSkeletonPositionIndex jt = (KinectWrapper.NuiSkeletonPositionIndex)jointTypeValues.GetValue(jointIndex);
-			
+            //KinectWrapper.NuiSkeletonPositionIndex jt = (KinectWrapper.NuiSkeletonPositionIndex)jointTypeValues.GetValue(jointIndex);
+
             // If not tracked, we smooth a bit more by using a bigger jitter radius
             // Always filter feet highly as they are so noisy
             if (skeleton.eSkeletonPositionTrackingState[jointIndex] != KinectWrapper.NuiSkeletonPositionTrackingState.Tracked)
@@ -133,22 +140,25 @@ public class JointPositionsFilter
     // Update the filter for one joint.  
     protected void FilterJoint(ref KinectWrapper.NuiSkeletonData skeleton, int jointIndex, ref KinectWrapper.NuiTransformSmoothParameters smoothingParameters)
     {
-//        if (null == skeleton)
-//        {
-//            return;
-//        }
+        //        if (null == skeleton)
+        //        {
+        //            return;
+        //        }
 
         //int jointIndex = (int)jt;
 
         Vector3 filteredPosition;
         Vector3 diffvec;
         Vector3 trend;
+        Vector3 predictedPosition; // modify
         float diffVal;
 
         Vector3 rawPosition = (Vector3)skeleton.SkeletonPositions[jointIndex];
         Vector3 prevFilteredPosition = this.history[jointIndex].FilteredPosition;
         Vector3 prevTrend = this.history[jointIndex].Trend;
         Vector3 prevRawPosition = this.history[jointIndex].RawPosition;
+        Vector3 prevPredictedPosition = this.history[jointIndex].PredictedPosition; // modify
+
         bool jointIsValid = KinectHelper.JointPositionIsValid(rawPosition);
 
         // If joint is invalid, reset the filter
@@ -157,65 +167,121 @@ public class JointPositionsFilter
             history[jointIndex].FrameCount = 0;
         }
 
-        // Initial start values
-        if (this.history[jointIndex].FrameCount == 0)
+        // modify
+        if (filterType == 1)
         {
-            filteredPosition = rawPosition;
-            trend = Vector3.zero;
-        }
-        else if (this.history[jointIndex].FrameCount == 1)
-        {
-            filteredPosition = (rawPosition + prevRawPosition) * 0.5f;
-            diffvec = filteredPosition - prevFilteredPosition;
-            trend = (diffvec * smoothingParameters.fCorrection) + (prevTrend * (1.0f - smoothingParameters.fCorrection));
-        }
-        else
-        {              
-            // First apply jitter filter
-            diffvec = rawPosition - prevFilteredPosition;
-            diffVal = Math.Abs(diffvec.magnitude);
-
-            if (diffVal <= smoothingParameters.fJitterRadius)
-            {
-                filteredPosition = (rawPosition * (diffVal / smoothingParameters.fJitterRadius)) + (prevFilteredPosition * (1.0f - (diffVal / smoothingParameters.fJitterRadius)));
-            }
-            else
+            // Initial start values
+            // Single Exponential Smoothing Filter
+            if (this.history[jointIndex].FrameCount == 0)
             {
                 filteredPosition = rawPosition;
             }
+            else if (this.history[jointIndex].FrameCount == 1 || this.history[jointIndex].FrameCount == 2)
+            {
+                filteredPosition = (rawPosition + prevRawPosition) * 0.5f;
+            }
+            else
+            {
+                // First apply jitter filter
+                diffvec = rawPosition - prevFilteredPosition;
+                diffVal = Math.Abs(diffvec.magnitude);
 
-            // Now the double exponential smoothing filter
-            filteredPosition = (filteredPosition * (1.0f - smoothingParameters.fSmoothing)) + ((prevFilteredPosition + prevTrend) * smoothingParameters.fSmoothing);
+                if (diffVal <= smoothingParameters.fJitterRadius)
+                {
+                    filteredPosition = (rawPosition * (diffVal / smoothingParameters.fJitterRadius)) + (prevFilteredPosition * (1.0f - (diffVal / smoothingParameters.fJitterRadius)));
+                }
+                else
+                {
+                    filteredPosition = rawPosition;
+                }
 
-            diffvec = filteredPosition - prevFilteredPosition;
-            trend = (diffvec * smoothingParameters.fCorrection) + (prevTrend * (1.0f - smoothingParameters.fCorrection));
-        }      
+                // Single exponential smoothing filter
+                filteredPosition = (filteredPosition * (1.0f - smoothingParameters.fSmoothing)) + (prevFilteredPosition * smoothingParameters.fSmoothing);
 
-        // Predict into the future to reduce latency
-        Vector3 predictedPosition = filteredPosition + (trend * smoothingParameters.fPrediction);
+            }
+            predictedPosition = filteredPosition;
 
-        // Check that we are not too far away from raw data
-        diffvec = predictedPosition - rawPosition;
-        diffVal = Mathf.Abs(diffvec.magnitude);
+            // Check if we are not too far away from raw data
+            diffvec = predictedPosition - rawPosition;
+            diffVal = Mathf.Abs(diffvec.magnitude);
 
-        if (diffVal > smoothingParameters.fMaxDeviationRadius)
-        {
-            predictedPosition = (predictedPosition * (smoothingParameters.fMaxDeviationRadius / diffVal)) + (rawPosition * (1.0f - (smoothingParameters.fMaxDeviationRadius / diffVal)));
+            if (diffVal > smoothingParameters.fMaxDeviationRadius)
+            {
+
+                predictedPosition = (predictedPosition * (smoothingParameters.fMaxDeviationRadius / diffVal)) + (rawPosition * (1.0f - (smoothingParameters.fMaxDeviationRadius / diffVal)));
+            }
+
+            trend = Vector3.zero;
+
         }
+
+        else
+        {
+            // Initial start values
+            // Double Exponential Smoothing Filter
+            if (this.history[jointIndex].FrameCount == 0)
+            {
+                filteredPosition = rawPosition;
+                trend = Vector3.zero;
+            }
+            else if (this.history[jointIndex].FrameCount == 1)
+            {
+                filteredPosition = (rawPosition + prevRawPosition) * 0.5f;
+                diffvec = filteredPosition - prevFilteredPosition;
+                trend = (diffvec * smoothingParameters.fCorrection) + (prevTrend * (1.0f - smoothingParameters.fCorrection));
+            }
+            else
+            {
+                // First apply jitter filter
+                diffvec = rawPosition - prevFilteredPosition;
+                diffVal = Math.Abs(diffvec.magnitude);
+
+                if (diffVal <= smoothingParameters.fJitterRadius)
+                {
+                    filteredPosition = (rawPosition * (diffVal / smoothingParameters.fJitterRadius)) + (prevFilteredPosition * (1.0f - (diffVal / smoothingParameters.fJitterRadius)));
+                }
+                else
+                {
+                    filteredPosition = rawPosition;
+                }
+
+                // Double exponential smoothing filter
+                filteredPosition = (filteredPosition * (1.0f - smoothingParameters.fSmoothing)) + ((prevFilteredPosition + prevTrend) * smoothingParameters.fSmoothing);
+
+                diffvec = filteredPosition - prevFilteredPosition;
+                trend = (diffvec * smoothingParameters.fCorrection) + (prevTrend * (1.0f - smoothingParameters.fCorrection));
+            }
+
+            // Predict into the future to reduce latency
+            // Vector3 predictedPosition = filteredPosition + (trend * smoothingParameters.fPrediction);
+            predictedPosition = filteredPosition + (trend * smoothingParameters.fPrediction); //modify
+
+            // Check if we are not too far away from raw data
+            diffvec = predictedPosition - rawPosition;
+            diffVal = Mathf.Abs(diffvec.magnitude);
+
+            if (diffVal > smoothingParameters.fMaxDeviationRadius)
+            {
+
+                predictedPosition = (predictedPosition * (smoothingParameters.fMaxDeviationRadius / diffVal)) + (rawPosition * (1.0f - (smoothingParameters.fMaxDeviationRadius / diffVal)));
+            }
+        }
+
+
 
         // Save the data from this frame
         history[jointIndex].RawPosition = rawPosition;
         history[jointIndex].FilteredPosition = filteredPosition;
         history[jointIndex].Trend = trend;
         history[jointIndex].FrameCount++;
-        
+
         // Set the filtered data back into the joint
-//        Joint j = skeleton.Joints[jt];
-//        j.Position = KinectHelper.Vector3ToSkeletonPoint(predictedPosition);
-//        skeleton.Joints[jt] = j;
-		skeleton.SkeletonPositions[jointIndex] = (Vector4)predictedPosition;
+        //        Joint j = skeleton.Joints[jt];
+        //        j.Position = KinectHelper.Vector3ToSkeletonPoint(predictedPosition);
+        //        skeleton.Joints[jt] = j;
+        skeleton.SkeletonPositions[jointIndex] = (Vector4)predictedPosition;
     }
-	
+
 
     // Historical Filter Data.  
     private struct FilterDoubleExponentialData
@@ -228,6 +294,9 @@ public class JointPositionsFilter
 
         // Gets or sets Historical Trend.  
         public Vector3 Trend;
+
+        // Gets or sets Historical Predicted Position.
+        public Vector3 PredictedPosition;
 
         // Gets or sets Historical FrameCount.  
         public uint FrameCount;
