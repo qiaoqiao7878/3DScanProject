@@ -1,4 +1,4 @@
-﻿/------------------------------------------------------------------------------
+﻿//------------------------------------------------------------------------------
 // <copyright file="SkeletonJointsPositionDoubleExponentialFilter.cs" company="Microsoft">
 //     Copyright (c) Microsoft Corporation.  All rights reserved.
 // </copyright>
@@ -33,7 +33,7 @@ public class JointPositionsFilter
 
     // modify
     // choose filter type
-    private int filterType = 1;
+    private int filterType = 2;
 
 
     /// Initializes a new instance of the class.

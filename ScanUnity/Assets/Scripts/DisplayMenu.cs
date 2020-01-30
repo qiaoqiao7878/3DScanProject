@@ -60,7 +60,7 @@ public class DisplayMenu : MonoBehaviour
     {
         Debug.Log("Recording...");
         
-        if (numRecord < numRecordtotal)
+        if (numRecord <= numRecordtotal)
         {
                    
             //write current point positions of Kinect Scan to a txt file

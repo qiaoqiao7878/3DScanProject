@@ -49,10 +49,12 @@ public class DanceMenu : MonoBehaviour
     private double[] anglesPlayer = new double[8];//14
     private double[] anglesTarget = new double[8];
 
+    private bool paused = false;
     private bool started = false;
     public Button startButton;
     private float roundTime = 100f; //seconds
     private float startTime;
+    private float pauseTime = 0.0f;
 
 
     //Button-Functions--------------------------------------------------------
@@ -86,11 +88,14 @@ public class DanceMenu : MonoBehaviour
 
     void Awake()
     {
+        GM.initializePoseList();
+
         //choose current Model according to gender
         changeGenderModel();
         //get the poseList
         poseList = GM.getPoseList();
         numPose = poseList.Count;
+        showText("");
         //bind the transformed of the Bones of the target Model
         var animatorComponent = targetModel.GetComponentInChildren<Animator>();
         for (int boneIndex = 0; boneIndex <_numBones; boneIndex++)
@@ -100,8 +105,11 @@ public class DanceMenu : MonoBehaviour
         //Initialize initial Position and Rotation of TargetModel
         for(int i = 0; i < _numBones; i++)
         {
-            initialPos[i] = bonesTarget[i].localPosition;
-            initialRot[i] = bonesTarget[i].localRotation;
+            if (bonesTarget[i] != null)
+            {
+                initialPos[i] = bonesTarget[i].localPosition;
+                initialRot[i] = bonesTarget[i].localRotation;
+            }
         }
     }
 
@@ -110,40 +118,62 @@ public class DanceMenu : MonoBehaviour
         //when a dance is playing
         if (started)
         {
-            //calculate 14 angles
-            getJointPosition();
-            calculatePlayerAngles(playerJoints);
-
-            //compare with poseList[currentPose]
-            bool match = compareAngles();
-            //bool match = false;
-            //TODO maybe compare jointRotations too
-            //UnityEngine.Debug.Log(Time.time - startTime);
-            if (match || Time.time - startTime >= roundTime) //Timer if you took too long to find the target pose
+            if(paused && Time.time - pauseTime >= 5)
             {
-                if (match)
+                paused = false;
+                showText("");
+            }
+            if (!paused)
+            {
+                //calculate 8 angles
+                getJointPosition();
+
+                bool match = false;
+                if (IsAllJointTracked() == true)
                 {
-                    //give point for a correct pose match
-                    addPoints(1);
+                    showText("");
+                    calculatePlayerAngles(playerJoints);
+                    //compare with poseList[currentPose]
+                    match = compareAngles();
+                }
+                else
+                {
+                    showText("Joints missing!");
                 }
 
-                //show next pose
-                bool next = makeNextPose();
-                if (!next)
+                //bool match = false;
+                //TODO maybe compare jointRotations too
+                //UnityEngine.Debug.Log(Time.time - startTime);
+                if (match || Time.time - startTime >= roundTime) //Timer if you took too long to find the target pose
                 {
-                    UnityEngine.Debug.Log("All Poses matched!");
-                    started = false;
-                    startButton.interactable = true;
-                    //Reload TargetModel Restpose
-                    changeTargetModel(initialPos, initialRot);
-                    showText("Game Over!");
+                    if (match)
+                    {
+                        float stoptime = Time.time;
+                        //give point for a correct pose match
+                        addPoints(1);
+                        showText("+1!!!!!!");
+                        paused = true;
+                        pauseTime = Time.time;
+                        //showText("");
+                    }
+
+                    //show next pose
+                    bool next = makeNextPose();
+                    if (!next)
+                    {
+                        UnityEngine.Debug.Log("All Poses matched!");
+                        started = false;
+                        startButton.interactable = true;
+                        //Reload TargetModel Restpose
+                        changeTargetModel(initialPos, initialRot);
+                        showText("Game Over!");
+                    }
                 }
             }
-
         }
     }
 
-
+    
     //Activate the model according to gender
     public void changeGenderModel()
     {
@@ -248,14 +278,14 @@ public class DanceMenu : MonoBehaviour
     void calculateTargetAngles(Vector3[] jointPos)
     {
         //calculate angles and store them in anglesTarget
-        anglesPlayer[0] = calAngle(ref jointPos, NuiSkeletonPositionIndex.WristLeft, NuiSkeletonPositionIndex.ElbowLeft, NuiSkeletonPositionIndex.ShoulderLeft);
-        anglesPlayer[1] = calAngle(ref jointPos, NuiSkeletonPositionIndex.ElbowLeft, NuiSkeletonPositionIndex.ShoulderLeft, NuiSkeletonPositionIndex.ShoulderCenter);
-        anglesPlayer[2] = calAngle(ref jointPos, NuiSkeletonPositionIndex.HipCenter, NuiSkeletonPositionIndex.HipLeft, NuiSkeletonPositionIndex.KneeLeft);
-        anglesPlayer[3] = calAngle(ref jointPos, NuiSkeletonPositionIndex.AnkleLeft, NuiSkeletonPositionIndex.KneeLeft, NuiSkeletonPositionIndex.HipLeft);
-        anglesPlayer[4] = calAngle(ref jointPos, NuiSkeletonPositionIndex.WristRight, NuiSkeletonPositionIndex.ElbowRight, NuiSkeletonPositionIndex.ShoulderRight);
-        anglesPlayer[5] = calAngle(ref jointPos, NuiSkeletonPositionIndex.ElbowRight, NuiSkeletonPositionIndex.ShoulderRight, NuiSkeletonPositionIndex.ShoulderCenter);
-        anglesPlayer[6] = calAngle(ref jointPos, NuiSkeletonPositionIndex.HipCenter, NuiSkeletonPositionIndex.HipRight, NuiSkeletonPositionIndex.KneeRight);
-        anglesPlayer[7] = calAngle(ref jointPos, NuiSkeletonPositionIndex.AnkleRight, NuiSkeletonPositionIndex.KneeRight, NuiSkeletonPositionIndex.HipRight);
+        anglesTarget[0] = calAngle(ref jointPos, NuiSkeletonPositionIndex.WristLeft, NuiSkeletonPositionIndex.ElbowLeft, NuiSkeletonPositionIndex.ShoulderLeft);
+        anglesTarget[1] = calAngle(ref jointPos, NuiSkeletonPositionIndex.ElbowLeft, NuiSkeletonPositionIndex.ShoulderLeft, NuiSkeletonPositionIndex.ShoulderCenter);
+        anglesTarget[2] = calAngle(ref jointPos, NuiSkeletonPositionIndex.HipCenter, NuiSkeletonPositionIndex.HipLeft, NuiSkeletonPositionIndex.KneeLeft);
+        anglesTarget[3] = calAngle(ref jointPos, NuiSkeletonPositionIndex.AnkleLeft, NuiSkeletonPositionIndex.KneeLeft, NuiSkeletonPositionIndex.HipLeft);
+        anglesTarget[4] = calAngle(ref jointPos, NuiSkeletonPositionIndex.WristRight, NuiSkeletonPositionIndex.ElbowRight, NuiSkeletonPositionIndex.ShoulderRight);
+        anglesTarget[5] = calAngle(ref jointPos, NuiSkeletonPositionIndex.ElbowRight, NuiSkeletonPositionIndex.ShoulderRight, NuiSkeletonPositionIndex.ShoulderCenter);
+        anglesTarget[6] = calAngle(ref jointPos, NuiSkeletonPositionIndex.HipCenter, NuiSkeletonPositionIndex.HipRight, NuiSkeletonPositionIndex.KneeRight);
+        anglesTarget[7] = calAngle(ref jointPos, NuiSkeletonPositionIndex.AnkleRight, NuiSkeletonPositionIndex.KneeRight, NuiSkeletonPositionIndex.HipRight);
     }
 
     // j2 is the joint that links the other two joints
@@ -298,7 +328,20 @@ public class DanceMenu : MonoBehaviour
     //    stopwatch.Stop();
 
     //}
-    
+
+
+
+    bool IsAllJointTracked()
+    {
+        for (int i = 0; i < _numJoints; i++)
+        {
+            if (manager.IsJointTracked(UserId, i) == false)
+            {
+                return false;
+            }
+        }
+        return true;
+    }
 
 
     //compare anglesPlayer with anglesTarget, return true if the difference is under a threshold
@@ -306,12 +349,13 @@ public class DanceMenu : MonoBehaviour
     bool compareAngles()
     {
         //TODO
-        double threshold = 10; // in degree
+        double threshold = 30; // in degree
         double angleDiff = 0.0;
 
         for (int i = 0; i < _numAngles; i++)
         {
             angleDiff = Math.Abs(anglesPlayer[i] - anglesTarget[i]);
+            UnityEngine.Debug.Log(anglesPlayer[i] + " " + anglesTarget[i]);
             UnityEngine.Debug.Log(angleDiff);
             if (angleDiff > threshold)
             {

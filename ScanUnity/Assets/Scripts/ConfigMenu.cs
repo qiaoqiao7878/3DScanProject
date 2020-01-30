@@ -74,16 +74,16 @@ public class ConfigMenu : MonoBehaviour
         if (correctCal)
         {        
             Bodyshape_female bodyshape_female = new Bodyshape_female();            
-            Bodyshape_male bodyshape_male = new Bodyshape_male();            
+            Bodyshape_male bodyshape_male = new Bodyshape_male();
 
             //just first directly set the bodyheight as betas[0]
-            bodyshape_female.betas[0] = bodyheight;
-            //bodyshape_female.betas[0] = (bodyheight - 1.7) * 0.7;
-            bodyshape_male.betas[0] = bodyheight;
-            //bodyshape_male.betas[0] = (bodyheight - 1.7) * 0.7;
+            //bodyshape_female.betas[0] = bodyheight;
+            bodyshape_female.betas[0] = (bodyheight - 1.7) * 10.0;
+            //bodyshape_male.betas[0] = bodyheight;
+            bodyshape_male.betas[0] = -(bodyheight - 1.7) * 10.0;
             //Set bodyweight as beta[1]
-            bodyshape_female.betas[1] = -(bodyweight - 0.5) * 10;
-            bodyshape_male.betas[1] = -(bodyweight - 0.5) * 10;
+            bodyshape_female.betas[1] = -bodyweight * 10.0 + 5.0;
+            bodyshape_male.betas[1] = -bodyweight * 10.0 + 5.0;
             Debug.Log("Height: " + bodyweight.ToString());
 
             //Write new shape parameters in json File according to gender
