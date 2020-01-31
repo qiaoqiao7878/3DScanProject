@@ -27,18 +27,15 @@ public class TrackingStateFilter
     //    return m_p0 + dt * (m_p2 + m_p1) + dt * dt * m_p3 + m_q0;
     //}
     // State transition model
-    //private double[] F = new double[4];
-    // Control-input model
-    //private double[] B = new double[2];
-
-    //private double dt = 0.001f;
-    //public float a = 0;    // accelerate has to be changed
+   
+    
 
     private double[] F = new double[4];
     // Control-input model
     private double[] B = new double[2];
 
     private double dt = 0.001f;
+    //public float a = 0;    // accelerate has to be changed
     public float a = 1;    // accelerate has to be changed
 	
     /// Initializes a new instance of the class.
@@ -124,35 +121,24 @@ public class TrackingStateFilter
         //double velocity;
 
         double velocity;
-        
+
         float rawState = (float)skeleton.eSkeletonPositionTrackingState[jointIndex];
         float prevFilteredState = history[jointIndex].FilteredState;
         float prevTrend = history[jointIndex].Trend;
         float prevRawState = history[jointIndex].RawState;
-        //float prevVelocity = history[jointIndex].Velocity;
-        //double[] m_p = history[jointIndex].m_p;
-        //double[] m_q = history[jointIndex].m_q;
-        //double m_r = history[jointIndex].m_r;
-
-       // F[0] = 1;
-       // F[1] = dt;
-       // F[2] = 0;
-       // F[3] = 1;
-       // B[0] = 0.5 * dt * dt;
-       // B[1] = dt;
 
         float prevVelocity = history[jointIndex].Velocity;
         //double[] m_p = history[jointIndex].m_p;
         //double[] m_q = history[jointIndex].m_q;
         //double m_r = history[jointIndex].m_r;
-        
+
         F[0] = 1;
         F[1] = dt;
         F[2] = 0;
         F[3] = 1;
         B[0] = 0.5 * dt * dt;
         B[1] = dt;
-        
+
         // If joint is invalid, reset the filter
         if (rawState == 0f)
         {
@@ -198,30 +184,27 @@ public class TrackingStateFilter
             // velocity = (float)F[1] * prevVelocity + (float)F[3] * prevVelocity - (float)B[1] * a;
 
             // Now the double exponential smoothing filter
-             filteredState = (filteredState * (1.0f - smoothingParameters.fSmoothing)) + ((prevFilteredState + prevTrend) * smoothingParameters.fSmoothing);
+            filteredState = (filteredState * (1.0f - smoothingParameters.fSmoothing)) + ((prevFilteredState + prevTrend) * smoothingParameters.fSmoothing);
 
-             diffVal = filteredState - prevFilteredState;
-             trend = (diffVal * smoothingParameters.fCorrection) + (prevTrend * (1.0f - smoothingParameters.fCorrection));
+            diffVal = filteredState - prevFilteredState;
+            trend = (diffVal * smoothingParameters.fCorrection) + (prevTrend * (1.0f - smoothingParameters.fCorrection));
             // trend = 0f;
         }
+    
 
         // Predict into the future to reduce latency
-         float predictedState = filteredState + (trend * smoothingParameters.fPrediction);
-        // float predictedState = filteredState + (float)velocity;
-            filteredState = (float)F[0] * prevFilteredState + (float)F[2] * prevFilteredState - (float)B[0] * a;
-            velocity = (float)F[1] * prevVelocity + (float)F[3] * prevVelocity - (float)B[1] * a;
+        float predictedState = filteredState + (trend * smoothingParameters.fPrediction);
+        //float predictedState = filteredState + (float)velocity;
+        
+        filteredState = (float)F[0] * prevFilteredState + (float)F[2] * prevFilteredState - (float)B[0] * a;
+        velocity = (float)F[1] * prevVelocity + (float)F[3] * prevVelocity - (float)B[1] * a;
 
-            // Now the double exponential smoothing filter
-            // filteredState = (filteredState * (1.0f - smoothingParameters.fSmoothing)) + ((prevFilteredState + prevTrend) * smoothingParameters.fSmoothing);
+        // Now the double exponential smoothing filter
+        // filteredState = (filteredState * (1.0f - smoothingParameters.fSmoothing)) + ((prevFilteredState + prevTrend) * smoothingParameters.fSmoothing);
 
-            // diffVal = filteredState - prevFilteredState;
-            // trend = (diffVal * smoothingParameters.fCorrection) + (prevTrend * (1.0f - smoothingParameters.fCorrection));
-            trend = 0f;
-        }
-
-        // Predict into the future to reduce latency
-        // float predictedState = filteredState + (trend * smoothingParameters.fPrediction);
-        float predictedState = filteredState + (float)velocity;
+        // diffVal = filteredState - prevFilteredState;
+        // trend = (diffVal * smoothingParameters.fCorrection) + (prevTrend * (1.0f - smoothingParameters.fCorrection));
+        trend = 0f;
 
         // Check that we are not too far away from raw data
         diffVal = predictedState - rawState;
@@ -250,14 +233,6 @@ public class TrackingStateFilter
         double exponential = Math.Exp(-1 * (x - mu) * (x - mu) / (2 * sigma));
         return coefficient * exponential;
     }
-
-    private double Gaussian(double mu, double sigma, double x)
-    {
-        double coefficient = 1.0 / Math.Sqrt(2.0 * Math.PI * sigma);
-        double exponential = Math.Exp(-1 * (x - mu) * (x - mu) / (2 * sigma));
-        return coefficient * exponential;
-    }
-	
 
     // Historical Filter Data.  
     private struct FilterDoubleExponentialData

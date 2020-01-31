@@ -268,7 +268,7 @@ public class ConfigMenu : MonoBehaviour
     }
 
     //Calculate the bodyweight from the tracked joint positions of the hands/elbows
-    public static double calBodyweight(ref Vector3[] jointsPos)
+    public double calBodyweight(ref Vector3[] jointsPos)
     {
         double weightValue = 0;
         if (manager.IsJointTracked(UserId, (int)NuiSkeletonPositionIndex.ElbowLeft) && manager.IsJointTracked(UserId,
