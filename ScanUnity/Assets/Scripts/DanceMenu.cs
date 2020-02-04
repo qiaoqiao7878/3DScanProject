@@ -52,7 +52,7 @@ public class DanceMenu : MonoBehaviour
     private bool paused = false;
     private bool started = false;
     public Button startButton;
-    private float roundTime = 100f; //seconds
+    private float roundTime = 30f; //seconds
     private float startTime;
     private float pauseTime = 0.0f;
 
@@ -265,12 +265,12 @@ public class DanceMenu : MonoBehaviour
     {        
         //calculate angles and store them in anglesPlayer
         anglesPlayer[0] = calAngle(ref jointPos, NuiSkeletonPositionIndex.WristLeft, NuiSkeletonPositionIndex.ElbowLeft, NuiSkeletonPositionIndex.ShoulderLeft);
-        anglesPlayer[1] = calAngle(ref jointPos, NuiSkeletonPositionIndex.ElbowLeft, NuiSkeletonPositionIndex.ShoulderLeft, NuiSkeletonPositionIndex.ShoulderCenter);
-        anglesPlayer[2] = calAngle(ref jointPos, NuiSkeletonPositionIndex.HipCenter, NuiSkeletonPositionIndex.HipLeft, NuiSkeletonPositionIndex.KneeLeft);
+        anglesPlayer[1] = calAngle(ref jointPos, NuiSkeletonPositionIndex.ElbowLeft, NuiSkeletonPositionIndex.ShoulderLeft, NuiSkeletonPositionIndex.Spine);
+        anglesPlayer[2] = calAngle(ref jointPos, NuiSkeletonPositionIndex.Spine, NuiSkeletonPositionIndex.HipLeft, NuiSkeletonPositionIndex.KneeLeft);
         anglesPlayer[3] = calAngle(ref jointPos, NuiSkeletonPositionIndex.AnkleLeft, NuiSkeletonPositionIndex.KneeLeft, NuiSkeletonPositionIndex.HipLeft);
         anglesPlayer[4] = calAngle(ref jointPos, NuiSkeletonPositionIndex.WristRight, NuiSkeletonPositionIndex.ElbowRight, NuiSkeletonPositionIndex.ShoulderRight);
-        anglesPlayer[5] = calAngle(ref jointPos, NuiSkeletonPositionIndex.ElbowRight, NuiSkeletonPositionIndex.ShoulderRight, NuiSkeletonPositionIndex.ShoulderCenter);
-        anglesPlayer[6] = calAngle(ref jointPos, NuiSkeletonPositionIndex.HipCenter, NuiSkeletonPositionIndex.HipRight, NuiSkeletonPositionIndex.KneeRight);
+        anglesPlayer[5] = calAngle(ref jointPos, NuiSkeletonPositionIndex.ElbowRight, NuiSkeletonPositionIndex.ShoulderRight, NuiSkeletonPositionIndex.Spine);
+        anglesPlayer[6] = calAngle(ref jointPos, NuiSkeletonPositionIndex.Spine, NuiSkeletonPositionIndex.HipRight, NuiSkeletonPositionIndex.KneeRight);
         anglesPlayer[7] = calAngle(ref jointPos, NuiSkeletonPositionIndex.AnkleRight, NuiSkeletonPositionIndex.KneeRight, NuiSkeletonPositionIndex.HipRight);       
     }
 
@@ -279,12 +279,12 @@ public class DanceMenu : MonoBehaviour
     {
         //calculate angles and store them in anglesTarget
         anglesTarget[0] = calAngle(ref jointPos, NuiSkeletonPositionIndex.WristLeft, NuiSkeletonPositionIndex.ElbowLeft, NuiSkeletonPositionIndex.ShoulderLeft);
-        anglesTarget[1] = calAngle(ref jointPos, NuiSkeletonPositionIndex.ElbowLeft, NuiSkeletonPositionIndex.ShoulderLeft, NuiSkeletonPositionIndex.ShoulderCenter);
-        anglesTarget[2] = calAngle(ref jointPos, NuiSkeletonPositionIndex.HipCenter, NuiSkeletonPositionIndex.HipLeft, NuiSkeletonPositionIndex.KneeLeft);
+        anglesTarget[1] = calAngle(ref jointPos, NuiSkeletonPositionIndex.ElbowLeft, NuiSkeletonPositionIndex.ShoulderLeft, NuiSkeletonPositionIndex.Spine);
+        anglesTarget[2] = calAngle(ref jointPos, NuiSkeletonPositionIndex.Spine, NuiSkeletonPositionIndex.HipLeft, NuiSkeletonPositionIndex.KneeLeft);
         anglesTarget[3] = calAngle(ref jointPos, NuiSkeletonPositionIndex.AnkleLeft, NuiSkeletonPositionIndex.KneeLeft, NuiSkeletonPositionIndex.HipLeft);
         anglesTarget[4] = calAngle(ref jointPos, NuiSkeletonPositionIndex.WristRight, NuiSkeletonPositionIndex.ElbowRight, NuiSkeletonPositionIndex.ShoulderRight);
-        anglesTarget[5] = calAngle(ref jointPos, NuiSkeletonPositionIndex.ElbowRight, NuiSkeletonPositionIndex.ShoulderRight, NuiSkeletonPositionIndex.ShoulderCenter);
-        anglesTarget[6] = calAngle(ref jointPos, NuiSkeletonPositionIndex.HipCenter, NuiSkeletonPositionIndex.HipRight, NuiSkeletonPositionIndex.KneeRight);
+        anglesTarget[5] = calAngle(ref jointPos, NuiSkeletonPositionIndex.ElbowRight, NuiSkeletonPositionIndex.ShoulderRight, NuiSkeletonPositionIndex.Spine);
+        anglesTarget[6] = calAngle(ref jointPos, NuiSkeletonPositionIndex.Spine, NuiSkeletonPositionIndex.HipRight, NuiSkeletonPositionIndex.KneeRight);
         anglesTarget[7] = calAngle(ref jointPos, NuiSkeletonPositionIndex.AnkleRight, NuiSkeletonPositionIndex.KneeRight, NuiSkeletonPositionIndex.HipRight);
     }
 
@@ -356,7 +356,7 @@ public class DanceMenu : MonoBehaviour
         {
             angleDiff = Math.Abs(anglesPlayer[i] - anglesTarget[i]);
             UnityEngine.Debug.Log(anglesPlayer[i] + " " + anglesTarget[i]);
-            UnityEngine.Debug.Log(angleDiff);
+            UnityEngine.Debug.Log(i +" "+ angleDiff);
             if (angleDiff > threshold)
             {
                 return false;
